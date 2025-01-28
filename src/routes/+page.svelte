@@ -1,2 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import ExchangeRate from '$lib/tiles/exchange-rate.svelte';
+</script>
+
+<div class="grid grid-cols-8 gap-2 p-1">
+	<ExchangeRate />
+</div>
