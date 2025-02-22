@@ -1,3 +1,10 @@
+#[macro_use]
+extern crate slugify;
+
+pub mod location;
+pub mod slug;
+pub mod uuid;
+
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
