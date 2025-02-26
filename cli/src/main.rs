@@ -22,6 +22,9 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    List,
+    Get,
+    Set,
     Exec,
 }
 
@@ -37,23 +40,21 @@ fn main() {
         println!("Value for config: {}", config_path.display());
     }
 
-    // You can see how many times a particular flag or argument occurred
-    // Note, only flags can have multiple occurrences
-    match cli.debug {
-        0 => println!("Debug mode is off"),
-        1 => println!("Debug mode is kind of on"),
-        2 => println!("Debug mode is on"),
-        _ => println!("Don't be crazy"),
-    }
-
     // You can check for the existence of subcommands, and if found use their
     // matches just as you would the top level cmd
     match &cli.command {
         Some(Commands::Exec) => {
             println!("Exec subcommand found");
         }
+        Some(Commands::Get) => {
+            println!("Get subcommand found");
+        }
+        Some(Commands::List) => {
+            println!("List subcommand found");
+        }
+        Some(Commands::Set) => {
+            println!("Set subcommand found");
+        }
         None => {}
     }
-
-    // Continued program logic goes here...
 }

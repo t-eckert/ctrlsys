@@ -50,6 +50,29 @@ cs add task --name <name> --description <description> --due <due> // Adds a task
 cs get task --name <name> // Gets a task by its name
 ```
 
+## Link
+
+```
+cs list link // Lists all links
+cs add link --name <name> --url <url> // Adds a link
+cs get link --name <name> // Gets a link by its name
+```
+
+## Note
+
+```
+cs list note // Lists all notes
+cs add note --name <name> --content <content> // Adds a note
+cs get note --name <name> // Gets a note by its name
+```
+
+## Book
+
+```
+cs list book // Lists all books
+cs add book --name <name> --author <author> --isbn <isbn> // Adds a book
+cs get book --name <name> // Gets a book by its name
+```
 
 ## Exec
 
@@ -99,5 +122,21 @@ Creates a Svelte page.
 
 ```
 cs exec create-svelte-page --name <name>
+```
+
+### Autocommit
+
+Adds all changes to Git, sends the diff to an LLM to generate a commit message, and commits the changes.
+
+```
+cs exec autocommit
+```
+
+### Nomenclator
+
+Generates a name for a project.
+
+```
+cs exec nomenclator
 ```
 
