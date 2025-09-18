@@ -1,0 +1,133 @@
+# ctrlsys Root Taskfile
+
+version: '3'
+
+vars:
+  PROJECT_NAME: ctrlsys
+
+includes:
+  timer:
+    taskfile: ./jobs/timer/Taskfile.yml
+    dir: ./jobs/timer
+  api:
+    taskfile: ./apps/api/Taskfile.yml
+    dir: ./apps/api
+  cli:
+    taskfile: ./cli/Taskfile.yml
+    dir: ./cli
+  lib:
+    taskfile: ./lib/Taskfile.yml
+    dir: ./lib
+
+tasks:
+  # Default task - show available tasks
+  default:
+    desc: "📋 List all available tasks"
+    cmds:
+      - task --list-all
+    silent: true
+
+  # Project overview
+  info:
+    desc: "ℹ️ Show project information"
+    silent: true
+    cmds:
+      - echo "🚀 {{.PROJECT_NAME}} - Control System Platform"
+      - echo ""
+      - echo "📁 Components:"
+      - echo "  timer    - Timer microservice (jobs/timer/)"
+      - echo "  api      - API service (apps/api/)"
+      - echo "  cli      - CLI tool (cli/)"
+      - echo "  lib      - Shared library (lib/)"
+      - echo ""
+      - echo "🔧 Quick commands:"
+      - echo "  task timer:dev     - Timer development cycle"
+      - echo "  task api:dev       - API development cycle"
+      - echo "  task cli:dev       - CLI development cycle"
+      - echo "  task lib:dev       - Library development cycle"
+      - echo ""
+      - echo "  task build:all     - Build all components"
+      - echo "  task test:all      - Test all components"
+      - echo "  task check:all     - Check all components"
+      - echo ""
+      - echo "💡 Use task <component>:<task> to run specific tasks"
+      - echo "   Example - task timer:run or task api:docker:build"
+
+  # Workspace-level tasks
+  build:all:
+    desc: "🏗️ Build all components"
+    cmds:
+      - echo "Building all components..."
+      - cargo build --workspace
+
+  build:release:
+    desc: "🏗️ Build all components (release)"
+    cmds:
+      - echo "Building all components (release)..."
+      - cargo build --workspace --release
+
+  test:all:
+    desc: "🧪 Test all components"
+    cmds:
+      - echo "Testing all components..."
+      - cargo test --workspace
+
+  fmt:all:
+    desc: "🎨 Format all code"
+    cmds:
+      - cargo fmt --all
+
+  clippy:all:
+    desc: "🔍 Lint all code"
+    cmds:
+      - cargo clippy --workspace -- -D warnings
+
+  check:all:
+    desc: "✅ Check all code (fmt + clippy + test)"
+    cmds:
+      - task: fmt:all
+      - task: clippy:all
+      - task: test:all
+
+  # Development workflow
+  dev:
+    desc: "🚀 Full development cycle"
+    cmds:
+      - task: check:all
+      - echo "✅ All components ready for development"
+
+  # Container tasks
+  container:build:all:
+    desc: "🐳 Build all container images"
+    cmds:
+      - task: timer:container:build
+      - task: api:container:build
+
+  # Cleanup
+  clean:all:
+    desc: "🧹 Clean all build artifacts"
+    cmds:
+      - cargo clean --workspace
+      - rm -rf target/
+
+  # Utilities
+  watch:all:
+    desc: "👀 Watch all components for changes"
+    cmds:
+      - cargo watch -x "build --workspace"
+
+  # Quick aliases
+  b:
+    desc: "🏗️ Build all (alias)"
+    cmds:
+      - task: build:all
+
+  t:
+    desc: "🧪 Test all (alias)"
+    cmds:
+      - task: test:all
+
+  c:
+    desc: "✅ Check all (alias)"
+    cmds:
+      - task: check:all

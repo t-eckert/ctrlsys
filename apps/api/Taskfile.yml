@@ -1,0 +1,146 @@
+# API Service Tasks
+
+version: '3'
+
+vars:
+  SERVICE_NAME: ctrlsys-api
+  IMAGE_TAG: '{{.IMAGE_TAG | default "latest"}}'
+  REGISTRY: '{{.REGISTRY | default "your-registry"}}'
+  PORT: '{{.PORT | default "8080"}}'
+
+tasks:
+  # Build tasks
+  build:
+    desc: "🏗️ Build API service"
+    cmds:
+      - cargo build
+
+  build:release:
+    desc: "🏗️ Build API service (release)"
+    cmds:
+      - cargo build --release
+
+  # Test tasks
+  test:
+    desc: "🧪 Run API tests"
+    cmds:
+      - cargo test
+
+  test:integration:
+    desc: "🧪 Run API integration tests"
+    cmds:
+      - cargo test --test integration
+
+  # Code quality
+  fmt:
+    desc: "🎨 Format API code"
+    cmds:
+      - cargo fmt
+
+  clippy:
+    desc: "🔍 Run clippy on API"
+    cmds:
+      - cargo clippy -- -D warnings
+
+  check:
+    desc: "✅ Check API (fmt + clippy + test)"
+    cmds:
+      - task: fmt
+      - task: clippy
+      - task: test
+
+  # Development
+  run:
+    desc: "▶️ Run API service locally"
+    env:
+      PORT: '{{.PORT}}'
+      RUST_LOG: '{{.RUST_LOG | default "info"}}'
+    cmds:
+      - cargo run
+
+  run:debug:
+    desc: "🐛 Run API service with debug logging"
+    env:
+      PORT: '{{.PORT}}'
+      RUST_LOG: debug
+    cmds:
+      - cargo run
+
+  watch:
+    desc: "👀 Watch and rebuild API"
+    cmds:
+      - cargo watch -x run
+
+  watch:test:
+    desc: "👀 Watch and test API"
+    cmds:
+      - cargo watch -x test
+
+  # Container tasks
+  container:build:
+    desc: "🐳 Build API container image"
+    cmds:
+      - podman build -t {{.SERVICE_NAME}}:{{.IMAGE_TAG}} .
+
+  container:run:
+    desc: "🐳 Run API in Podman"
+    cmds:
+      - podman run --rm -p {{.PORT}}:{{.PORT}}
+        -e PORT={{.PORT}}
+        -e RUST_LOG=info
+        {{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+
+  container:push:
+    desc: "📤 Push API container image"
+    cmds:
+      - podman tag {{.SERVICE_NAME}}:{{.IMAGE_TAG}} {{.REGISTRY}}/{{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+      - podman push {{.REGISTRY}}/{{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+
+  # Kubernetes tasks
+  k8s:apply:
+    desc: "☸️ Apply API Kubernetes resources"
+    cmds:
+      - kubectl apply -f k8s/
+
+  k8s:delete:
+    desc: "🗑️ Delete API Kubernetes resources"
+    cmds:
+      - kubectl delete -f k8s/ --ignore-not-found=true
+
+  k8s:logs:
+    desc: "📋 Show API logs in Kubernetes"
+    cmds:
+      - kubectl logs -l app={{.SERVICE_NAME}} --tail=100 -f
+
+  k8s:port-forward:
+    desc: "🔀 Port forward API service"
+    cmds:
+      - kubectl port-forward svc/{{.SERVICE_NAME}} {{.PORT}}:{{.PORT}}
+
+  # Deployment
+  deploy:
+    desc: "🚀 Deploy API (build + push + apply)"
+    cmds:
+      - task: docker:build
+      - task: docker:push
+      - task: k8s:apply
+
+  # Health and monitoring
+  health:
+    desc: "🏥 Check API health"
+    cmds:
+      - curl -f http://localhost:{{.PORT}}/health || echo "API not responding"
+
+  # Cleanup
+  clean:
+    desc: "🧹 Clean API build artifacts"
+    cmds:
+      - cargo clean
+      - rm -rf target/
+
+  # Development shortcuts
+  dev:
+    desc: "🚀 Quick development cycle"
+    cmds:
+      - task: check
+      - task: run:debug
