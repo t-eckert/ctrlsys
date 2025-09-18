@@ -212,10 +212,12 @@ mod tests {
     #[test]
     fn test_config_from_env() {
         // Set environment variables
-        env::set_var("TIMER_DURATION_SECONDS", "600");
-        env::set_var("TIMER_NAME", "test-timer");
-        env::set_var("CONTROL_PLANE_ENDPOINT", "http://localhost:50053");
-        env::set_var("TIMER_LABELS", r#"{"env":"test","team":"platform"}"#);
+        unsafe {
+            env::set_var("TIMER_DURATION_SECONDS", "600");
+            env::set_var("TIMER_NAME", "test-timer");
+            env::set_var("CONTROL_PLANE_ENDPOINT", "http://localhost:50053");
+            env::set_var("TIMER_LABELS", r#"{"env":"test","team":"platform"}"#);
+        }
 
         let config = TimerConfig::from_env().unwrap();
 
@@ -226,9 +228,11 @@ mod tests {
         assert_eq!(config.labels.get("team"), Some(&"platform".to_string()));
 
         // Clean up
-        env::remove_var("TIMER_DURATION_SECONDS");
-        env::remove_var("TIMER_NAME");
-        env::remove_var("CONTROL_PLANE_ENDPOINT");
-        env::remove_var("TIMER_LABELS");
+        unsafe {
+            env::remove_var("TIMER_DURATION_SECONDS");
+            env::remove_var("TIMER_NAME");
+            env::remove_var("CONTROL_PLANE_ENDPOINT");
+            env::remove_var("TIMER_LABELS");
+        }
     }
 }
