@@ -22,25 +22,25 @@ includes:
 tasks:
   # Default task - show available tasks
   default:
-    desc: "📋 List all available tasks"
+    desc: "List all available tasks"
     cmds:
       - task --list-all
     silent: true
 
   # Project overview
   info:
-    desc: "ℹ️ Show project information"
+    desc: "Show project information"
     silent: true
     cmds:
-      - echo "🚀 {{.PROJECT_NAME}} - Control System Platform"
+      - echo "{{.PROJECT_NAME}} - Control System Platform"
       - echo ""
-      - echo "📁 Components:"
+      - echo "Components:"
       - echo "  timer    - Timer microservice (jobs/timer/)"
       - echo "  api      - API service (apps/api/)"
       - echo "  cli      - CLI tool (cli/)"
       - echo "  lib      - Shared library (lib/)"
       - echo ""
-      - echo "🔧 Quick commands:"
+      - echo "Quick commands:"
       - echo "  task timer:dev     - Timer development cycle"
       - echo "  task api:dev       - API development cycle"
       - echo "  task cli:dev       - CLI development cycle"
@@ -50,46 +50,46 @@ tasks:
       - echo "  task test:all      - Test all components"
       - echo "  task check:all     - Check all components"
       - echo ""
-      - echo "🐳 Container & Kubernetes:"
+      - echo "Container & Kubernetes:"
       - echo "  task k8s:cluster:start  - Start local K8s cluster"
       - echo "  task k8s:dev            - Full local K8s setup"
       - echo "  task timer:deploy:local - Deploy timer locally"
       - echo "  task container:build:all - Build all images"
       - echo ""
-      - echo "💡 Use task <component>:<task> to run specific tasks"
+      - echo "Use task <component>:<task> to run specific tasks"
       - echo "   Example - task timer:run or task timer:container:build"
 
   # Workspace-level tasks
   build:all:
-    desc: "🏗️ Build all components"
+    desc: "Build all components"
     cmds:
       - echo "Building all components..."
       - cargo build --workspace
 
   build:release:
-    desc: "🏗️ Build all components (release)"
+    desc: "Build all components (release)"
     cmds:
       - echo "Building all components (release)..."
       - cargo build --workspace --release
 
   test:all:
-    desc: "🧪 Test all components"
+    desc: "Test all components"
     cmds:
       - echo "Testing all components..."
       - cargo test --workspace
 
   fmt:all:
-    desc: "🎨 Format all code"
+    desc: "Format all code"
     cmds:
       - cargo fmt --all
 
   clippy:all:
-    desc: "🔍 Lint all code"
+    desc: "Lint all code"
     cmds:
       - cargo clippy --workspace -- -D warnings
 
   check:all:
-    desc: "✅ Check all code (fmt + clippy + test)"
+    desc: "Check all code (fmt + clippy + test)"
     cmds:
       - task: fmt:all
       - task: clippy:all
@@ -97,76 +97,76 @@ tasks:
 
   # Development workflow
   dev:
-    desc: "🚀 Full development cycle"
+    desc: "Full development cycle"
     cmds:
       - task: check:all
-      - echo "✅ All components ready for development"
+      - echo "All components ready for development"
 
   # Container tasks
   container:build:all:
-    desc: "🐳 Build all container images"
+    desc: "Build all container images"
     cmds:
       - task: timer:container:build
       - task: api:container:build
 
   # Kubernetes cluster management
   k8s:cluster:start:
-    desc: "🚀 Start local Kubernetes cluster"
+    desc: "Start local Kubernetes cluster"
     cmds:
       - task: timer:k8s:cluster:start
 
   k8s:cluster:stop:
-    desc: "🛑 Stop local Kubernetes cluster"
+    desc: "Stop local Kubernetes cluster"
     cmds:
       - task: timer:k8s:cluster:stop
 
   k8s:cluster:status:
-    desc: "📊 Check Kubernetes cluster status"
+    desc: "Check Kubernetes cluster status"
     cmds:
       - task: timer:k8s:cluster:status
 
   # Kubernetes deployment tasks
   k8s:apply:
-    desc: "☸️ Apply all Kubernetes resources"
+    desc: "Apply all Kubernetes resources"
     cmds:
       - task: timer:k8s:apply
 
   k8s:delete:
-    desc: "🗑️ Delete Kubernetes resources"
+    desc: "Delete Kubernetes resources"
     cmds:
       - task: timer:k8s:delete
 
   k8s:dev:
-    desc: "🚀 Full local Kubernetes development setup"
+    desc: "Full local Kubernetes development setup"
     cmds:
       - task: k8s:cluster:start
       - task: timer:deploy:local
 
   # Cleanup
   clean:all:
-    desc: "🧹 Clean all build artifacts"
+    desc: "Clean all build artifacts"
     cmds:
       - cargo clean --workspace
       - rm -rf target/
 
   # Utilities
   watch:all:
-    desc: "👀 Watch all components for changes"
+    desc: "Watch all components for changes"
     cmds:
       - cargo watch -x "build --workspace"
 
   # Quick aliases
   b:
-    desc: "🏗️ Build all (alias)"
+    desc: "Build all (alias)"
     cmds:
       - task: build:all
 
   t:
-    desc: "🧪 Test all (alias)"
+    desc: "Test all (alias)"
     cmds:
       - task: test:all
 
   c:
-    desc: "✅ Check all (alias)"
+    desc: "Check all (alias)"
     cmds:
       - task: check:all
