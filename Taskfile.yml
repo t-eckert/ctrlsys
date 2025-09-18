@@ -50,8 +50,14 @@ tasks:
       - echo "  task test:all      - Test all components"
       - echo "  task check:all     - Check all components"
       - echo ""
+      - echo "🐳 Container & Kubernetes:"
+      - echo "  task k8s:cluster:start  - Start local K8s cluster"
+      - echo "  task k8s:dev            - Full local K8s setup"
+      - echo "  task timer:deploy:local - Deploy timer locally"
+      - echo "  task container:build:all - Build all images"
+      - echo ""
       - echo "💡 Use task <component>:<task> to run specific tasks"
-      - echo "   Example - task timer:run or task api:docker:build"
+      - echo "   Example - task timer:run or task timer:container:build"
 
   # Workspace-level tasks
   build:all:
@@ -102,6 +108,39 @@ tasks:
     cmds:
       - task: timer:container:build
       - task: api:container:build
+
+  # Kubernetes cluster management
+  k8s:cluster:start:
+    desc: "🚀 Start local Kubernetes cluster"
+    cmds:
+      - task: timer:k8s:cluster:start
+
+  k8s:cluster:stop:
+    desc: "🛑 Stop local Kubernetes cluster"
+    cmds:
+      - task: timer:k8s:cluster:stop
+
+  k8s:cluster:status:
+    desc: "📊 Check Kubernetes cluster status"
+    cmds:
+      - task: timer:k8s:cluster:status
+
+  # Kubernetes deployment tasks
+  k8s:apply:
+    desc: "☸️ Apply all Kubernetes resources"
+    cmds:
+      - task: timer:k8s:apply
+
+  k8s:delete:
+    desc: "🗑️ Delete Kubernetes resources"
+    cmds:
+      - task: timer:k8s:delete
+
+  k8s:dev:
+    desc: "🚀 Full local Kubernetes development setup"
+    cmds:
+      - task: k8s:cluster:start
+      - task: timer:deploy:local
 
   # Cleanup
   clean:all:
