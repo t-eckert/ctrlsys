@@ -1,0 +1,36 @@
+FROM rust:1.75 as builder
+
+WORKDIR /app
+
+# Copy manifests
+COPY Cargo.toml Cargo.lock ./
+COPY build.rs ./
+
+# Copy proto files
+COPY proto/ ./proto/
+
+# Copy source code
+COPY src/ ./src/
+
+# Build the application
+RUN cargo build --release
+
+# Runtime stage
+FROM debian:bookworm-slim
+
+# Install ca-certificates for HTTPS
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the binary from builder stage
+COPY --from=builder /app/target/release/timer /usr/local/bin/timer-service
+
+# Create a non-root user
+RUN useradd -r -s /bin/false timer
+
+USER timer
+
+EXPOSE 50051
+
+CMD ["timer-service"]
