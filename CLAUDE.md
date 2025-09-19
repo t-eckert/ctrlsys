@@ -36,6 +36,16 @@ task container:build   # Build container image
 task k8s:apply         # Deploy to Kubernetes
 ```
 
+### Protocol Buffers with Buf
+```bash
+task proto:generate       # Generate code for all languages
+task proto:generate:go    # Generate Go code only
+task proto:generate:rust  # Generate Rust code only
+task proto:lint           # Lint protobuf files
+task proto:check          # Lint and build protobuf files
+task proto:build          # Build protobuf modules
+```
+
 ### Kubernetes & Local Development
 ```bash
 task k8s:cluster:start    # Start local Kind cluster
@@ -52,7 +62,7 @@ task k8s:cluster:status   # Check cluster status
 
 ### Key Services
 1. **JobScheduler** (`services/jobscheduler/`): Go-based Kubernetes job scheduling service
-   - gRPC API for creating and managing jobs
+   - ConnectRPC API for creating and managing jobs (HTTP/JSON compatible)
    - Kubernetes-native job execution
    - Extensible job registry pattern (Timer jobs implemented, weather/health planned)
    - Uses Zap for structured logging
@@ -65,13 +75,17 @@ task k8s:cluster:status   # Check cluster status
 4. **API** (`apps/api/`): API gateway service (minimal implementation)
 5. **CLI** (`cli/`): Command-line interface using Clap
 
-### gRPC Communication
-- JobScheduler: `ScheduleJob`, `GetJobStatus`, `ListJobs`, `CancelJob`
-- Timer: `CheckTimer`, `StreamTimer`, `ReportTimerComplete`
-- Protocol buffers in respective `proto/` directories
+### ConnectRPC Communication
+- JobSchedulerService: `ScheduleJob`, `GetJobStatus`, `ListJobs`, `CancelJob`
+- TimerService: `CheckTimer`, `StreamTimer`
+- ControlPlaneService: `ReportTimerComplete`
+- **Protocol**: Uses ConnectRPC for Go services (gRPC-compatible HTTP/JSON)
+- **Proto files**: Centralized in `proto/` directory with proper package structure
+- **Generated code**: Located in `gen/go/` and `gen/rust/` directories
 
 ### Build System
 - **Task**: Primary build automation (distributed Taskfiles)
+- **Buf**: Protocol buffer management and code generation
 - **Cargo**: Rust workspace at root level
 - **Go modules**: Independent module for JobScheduler service
 - **Podman**: Container runtime (not Docker)
@@ -108,3 +122,8 @@ task k8s:cluster:status   # Check cluster status
 - JobScheduler service is separate Go module (not part of Cargo workspace)
 - Timer service reports completion to control plane endpoint
 - Kubernetes Jobs are the execution primitive for scheduled work
+- **Buf manages all protobuf files**: Use `task proto:generate` before building
+- **Generated code is gitignored**: Always regenerate after proto changes
+- **Proto organization**: Follow `ctrlsys.<service>.v1` package naming pattern
+- **ConnectRPC**: JobScheduler uses ConnectRPC for modern HTTP/JSON APIs
+- **Module structure**: Generated Go code has separate module in `gen/go/`

@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 
-	pb "github.com/t-eckert/ctrlsys/services/jobscheduler/proto"
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 )
 
 // Client wraps the Kubernetes client and provides job management operations
@@ -151,28 +151,28 @@ func (c *Client) DeleteJob(ctx context.Context, namespace, name string) error {
 }
 
 // GetJobStatus converts Kubernetes Job status to our protobuf JobStatus
-func (c *Client) GetJobStatus(job *batchv1.Job) pb.JobStatus {
+func (c *Client) GetJobStatus(job *batchv1.Job) v1.JobStatus {
 	// Check job conditions for more specific status
 	for _, condition := range job.Status.Conditions {
 		switch condition.Type {
 		case batchv1.JobComplete:
 			if condition.Status == "True" {
-				return pb.JobStatus_JOB_STATUS_SUCCEEDED
+				return v1.JobStatus_JOB_STATUS_SUCCEEDED
 			}
 		case batchv1.JobFailed:
 			if condition.Status == "True" {
-				return pb.JobStatus_JOB_STATUS_FAILED
+				return v1.JobStatus_JOB_STATUS_FAILED
 			}
 		}
 	}
 
 	// Check if job is running
 	if job.Status.Active > 0 {
-		return pb.JobStatus_JOB_STATUS_RUNNING
+		return v1.JobStatus_JOB_STATUS_RUNNING
 	}
 
 	// If the job exists but hasn't started yet
-	return pb.JobStatus_JOB_STATUS_PENDING
+	return v1.JobStatus_JOB_STATUS_PENDING
 }
 
 // homeDir returns the home directory for the current user

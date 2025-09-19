@@ -11,7 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pb "github.com/t-eckert/ctrlsys/services/jobscheduler/proto"
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 )
 
 // TimerJobHandler implements JobHandler for Timer jobs
@@ -32,7 +32,7 @@ func (h *TimerJobHandler) GetJobType() JobType {
 }
 
 // ValidateConfig validates the timer job configuration
-func (h *TimerJobHandler) ValidateConfig(request *pb.ScheduleJobRequest) error {
+func (h *TimerJobHandler) ValidateConfig(request *v1.ScheduleJobRequest) error {
 	timerConfig := request.GetTimerJob()
 	if timerConfig == nil {
 		return fmt.Errorf("timer job configuration is required")
@@ -73,7 +73,7 @@ func (h *TimerJobHandler) ValidateConfig(request *pb.ScheduleJobRequest) error {
 }
 
 // GenerateJobManifest creates a Kubernetes Job manifest for a timer job
-func (h *TimerJobHandler) GenerateJobManifest(ctx context.Context, request *pb.ScheduleJobRequest, defaults *JobDefaults) (*batchv1.Job, error) {
+func (h *TimerJobHandler) GenerateJobManifest(ctx context.Context, request *v1.ScheduleJobRequest, defaults *JobDefaults) (*batchv1.Job, error) {
 	timerConfig := request.GetTimerJob()
 	if timerConfig == nil {
 		return nil, fmt.Errorf("timer job configuration is required")
@@ -256,7 +256,7 @@ func (h *TimerJobHandler) ExtractJobDetails(job *batchv1.Job) (interface{}, erro
 	}
 
 	container := job.Spec.Template.Spec.Containers[0]
-	details := &pb.TimerJobDetails{}
+	details := &v1.TimerJobDetails{}
 
 	// Extract details from environment variables
 	for _, env := range container.Env {

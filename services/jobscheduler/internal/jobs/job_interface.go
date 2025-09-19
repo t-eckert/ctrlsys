@@ -6,7 +6,7 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	pb "github.com/t-eckert/ctrlsys/services/jobscheduler/proto"
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 )
 
 // JobType represents the type of job
@@ -24,10 +24,10 @@ type JobHandler interface {
 	GetJobType() JobType
 
 	// ValidateConfig validates the job-specific configuration
-	ValidateConfig(request *pb.ScheduleJobRequest) error
+	ValidateConfig(request *v1.ScheduleJobRequest) error
 
 	// GenerateJobManifest creates a Kubernetes Job manifest for this job type
-	GenerateJobManifest(ctx context.Context, request *pb.ScheduleJobRequest, defaults *JobDefaults) (*batchv1.Job, error)
+	GenerateJobManifest(ctx context.Context, request *v1.ScheduleJobRequest, defaults *JobDefaults) (*batchv1.Job, error)
 
 	// ExtractJobDetails extracts job-specific details from a Kubernetes Job
 	ExtractJobDetails(job *batchv1.Job) (interface{}, error)

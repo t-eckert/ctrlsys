@@ -1,0 +1,7 @@
+version: v1
+plugins:
+  - name: rust
+    out: gen/rust
+    opt:
+      - experimental-codegen=enabled
+      - kernel=cpp

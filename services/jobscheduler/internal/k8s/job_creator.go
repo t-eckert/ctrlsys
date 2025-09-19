@@ -9,7 +9,7 @@ import (
 
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/config"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/jobs"
-	pb "github.com/t-eckert/ctrlsys/services/jobscheduler/proto"
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 )
 
 // JobCreator handles the creation and management of Kubernetes Jobs
@@ -31,7 +31,7 @@ func NewJobCreator(client *Client, config *config.Config, registry *jobs.Registr
 }
 
 // CreateJobFromRequest creates a Kubernetes Job from a ScheduleJobRequest
-func (jc *JobCreator) CreateJobFromRequest(ctx context.Context, request *pb.ScheduleJobRequest) (*pb.ScheduleJobResponse, error) {
+func (jc *JobCreator) CreateJobFromRequest(ctx context.Context, request *v1.ScheduleJobRequest) (*v1.ScheduleJobResponse, error) {
 	// Determine job type from the request
 	jobType, err := jc.getJobTypeFromRequest(request)
 	if err != nil {
@@ -65,9 +65,9 @@ func (jc *JobCreator) CreateJobFromRequest(ctx context.Context, request *pb.Sche
 	}
 
 	// Build response
-	response := &pb.ScheduleJobResponse{
+	response := &v1.ScheduleJobResponse{
 		JobId:      request.JobId,
-		Status:     pb.JobStatus_JOB_STATUS_PENDING,
+		Status:     v1.JobStatus_JOB_STATUS_PENDING,
 		Message:    "Job successfully scheduled",
 		K8SJobName: createdJob.Name,
 	}
@@ -83,7 +83,7 @@ func (jc *JobCreator) CreateJobFromRequest(ctx context.Context, request *pb.Sche
 }
 
 // GetJobInfo retrieves information about a job
-func (jc *JobCreator) GetJobInfo(ctx context.Context, jobID string, namespace string) (*pb.JobInfo, error) {
+func (jc *JobCreator) GetJobInfo(ctx context.Context, jobID string, namespace string) (*v1.JobInfo, error) {
 	// Find the job by label selector
 	labelSelector := map[string]string{
 		"ctrlsys.io/job-id": jobID,
@@ -113,7 +113,7 @@ func (jc *JobCreator) GetJobInfo(ctx context.Context, jobID string, namespace st
 }
 
 // ListJobs lists jobs with optional filtering
-func (jc *JobCreator) ListJobs(ctx context.Context, request *pb.ListJobsRequest) (*pb.ListJobsResponse, error) {
+func (jc *JobCreator) ListJobs(ctx context.Context, request *v1.ListJobsRequest) (*v1.ListJobsResponse, error) {
 	namespace := request.Namespace
 	if namespace == "" {
 		namespace = jc.config.Kubernetes.DefaultNamespace
@@ -134,7 +134,7 @@ func (jc *JobCreator) ListJobs(ctx context.Context, request *pb.ListJobsRequest)
 		return nil, fmt.Errorf("failed to list jobs: %w", err)
 	}
 
-	var jobInfos []*pb.JobInfo
+	var jobInfos []*v1.JobInfo
 	for _, job := range jobList.Items {
 		// Apply status filter if provided
 		if len(request.StatusFilter) > 0 {
@@ -162,7 +162,7 @@ func (jc *JobCreator) ListJobs(ctx context.Context, request *pb.ListJobsRequest)
 		jobInfos = append(jobInfos, jobInfo)
 	}
 
-	response := &pb.ListJobsResponse{
+	response := &v1.ListJobsResponse{
 		Jobs:       jobInfos,
 		TotalCount: int32(len(jobInfos)),
 	}
@@ -177,7 +177,7 @@ func (jc *JobCreator) CancelJob(ctx context.Context, jobID string, namespace str
 		return fmt.Errorf("failed to find job: %w", err)
 	}
 
-	if jobInfo.Status == pb.JobStatus_JOB_STATUS_SUCCEEDED || jobInfo.Status == pb.JobStatus_JOB_STATUS_FAILED {
+	if jobInfo.Status == v1.JobStatus_JOB_STATUS_SUCCEEDED || jobInfo.Status == v1.JobStatus_JOB_STATUS_FAILED {
 		return fmt.Errorf("cannot cancel job in status: %s", jobInfo.Status.String())
 	}
 
@@ -185,9 +185,9 @@ func (jc *JobCreator) CancelJob(ctx context.Context, jobID string, namespace str
 }
 
 // getJobTypeFromRequest determines the job type from the request configuration
-func (jc *JobCreator) getJobTypeFromRequest(request *pb.ScheduleJobRequest) (jobs.JobType, error) {
+func (jc *JobCreator) getJobTypeFromRequest(request *v1.ScheduleJobRequest) (jobs.JobType, error) {
 	switch request.JobConfig.(type) {
-	case *pb.ScheduleJobRequest_TimerJob:
+	case *v1.ScheduleJobRequest_TimerJob:
 		return jobs.JobTypeTimer, nil
 	default:
 		return "", fmt.Errorf("unknown job configuration type")
@@ -219,14 +219,14 @@ func (jc *JobCreator) createJobDefaults() *jobs.JobDefaults {
 }
 
 // convertJobToJobInfo converts a Kubernetes Job to our JobInfo protobuf message
-func (jc *JobCreator) convertJobToJobInfo(job *batchv1.Job) (*pb.JobInfo, error) {
+func (jc *JobCreator) convertJobToJobInfo(job *batchv1.Job) (*v1.JobInfo, error) {
 	// Extract job ID and other metadata from labels/annotations
 	jobID := job.Labels["ctrlsys.io/job-id"]
 	jobName := job.Annotations["ctrlsys.io/job-name"]
 	createdBy := job.Annotations["ctrlsys.io/created-by"]
 	jobType := jobs.JobType(job.Labels["ctrlsys.io/job-type"])
 
-	jobInfo := &pb.JobInfo{
+	jobInfo := &v1.JobInfo{
 		JobId:       jobID,
 		Name:        jobName,
 		K8SJobName:  job.Name,
@@ -268,8 +268,8 @@ func (jc *JobCreator) convertJobToJobInfo(job *batchv1.Job) (*pb.JobInfo, error)
 			if details, err := handler.ExtractJobDetails(job); err == nil {
 				switch jobType {
 				case jobs.JobTypeTimer:
-					if timerDetails, ok := details.(*pb.TimerJobDetails); ok {
-						jobInfo.JobDetails = &pb.JobInfo_TimerDetails{
+					if timerDetails, ok := details.(*v1.TimerJobDetails); ok {
+						jobInfo.JobDetails = &v1.JobInfo_TimerDetails{
 							TimerDetails: timerDetails,
 						}
 					}

@@ -20,6 +20,12 @@ func main() {
 	// Handle command line arguments
 	if len(os.Args) > 1 {
 		switch os.Args[1] {
+		case "version", "--version":
+			fmt.Println(version.GetShortVersionString())
+			return
+		case "version-full", "--version-full":
+			fmt.Println(version.GetFullVersionString())
+			return
 		case "help", "--help":
 			printHelp()
 			return

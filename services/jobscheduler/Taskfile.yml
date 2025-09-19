@@ -39,16 +39,17 @@ tasks:
   proto:generate:
     desc: "Generate Go code from protobuf files"
     cmds:
-      - ./scripts/generate-proto.sh
+      - cd ../../ && buf generate --template buf.gen.go.yaml proto/jobscheduler
     sources:
-      - proto/*.proto
+      - ../../proto/jobscheduler/ctrlsys/jobscheduler/v1/*.proto
     generates:
-      - proto/*.pb.go
+      - ../../gen/go/ctrlsys/jobscheduler/v1/*.pb.go
+      - ../../gen/go/ctrlsys/jobscheduler/v1/v1connect/*.connect.go
 
   proto:clean:
     desc: "Clean generated protobuf files"
     cmds:
-      - rm -f proto/*.pb.go
+      - rm -rf ../../gen/go/ctrlsys/jobscheduler/
 
   # Test tasks
   test:

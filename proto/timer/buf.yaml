@@ -1,0 +1,10 @@
+version: v1
+name: buf.build/t-eckert/ctrlsys-timer
+deps:
+  - buf.build/googleapis/googleapis
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

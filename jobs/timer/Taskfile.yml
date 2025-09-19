@@ -11,11 +11,13 @@ tasks:
   # Build tasks
   build:
     desc: "Build timer service"
+    deps: [proto:generate]
     cmds:
       - cargo build
 
   build:release:
     desc: "Build timer service (release)"
+    deps: [proto:generate]
     cmds:
       - cargo build --release
 
@@ -29,6 +31,16 @@ tasks:
     desc: "Run integration tests"
     cmds:
       - cargo test --test integration
+
+  # Protocol Buffers
+  proto:generate:
+    desc: "Generate Rust code from protobuf files"
+    cmds:
+      - cd ../../ && buf generate --template buf.gen.rust.yaml proto/timer
+    sources:
+      - ../../proto/timer/ctrlsys/timer/v1/*.proto
+    generates:
+      - ../../gen/rust/ctrlsys/timer/v1/*.rs
 
   # Code quality
   fmt:

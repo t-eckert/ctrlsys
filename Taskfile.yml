@@ -50,6 +50,13 @@ tasks:
       - echo "  task test:all      - Test all components"
       - echo "  task check:all     - Check all components"
       - echo ""
+      - echo "Protocol Buffers (Buf):"
+      - echo "  task proto:generate     - Generate code for all languages"
+      - echo "  task proto:generate:go  - Generate Go code only"
+      - echo "  task proto:generate:rust - Generate Rust code only"
+      - echo "  task proto:lint         - Lint protobuf files"
+      - echo "  task proto:check        - Lint and build protobuf files"
+      - echo ""
       - echo "Container & Kubernetes:"
       - echo "  task k8s:cluster:start  - Start local K8s cluster"
       - echo "  task k8s:dev            - Full local K8s setup"
@@ -148,6 +155,43 @@ tasks:
     cmds:
       - cargo clean --workspace
       - rm -rf target/
+
+  # Protocol Buffer management with Buf
+  proto:lint:
+    desc: "Lint all protobuf files"
+    cmds:
+      - buf lint
+
+  proto:breaking:
+    desc: "Check for breaking changes in protobuf files"
+    cmds:
+      - buf breaking --against '.git#branch=main'
+
+  proto:generate:
+    desc: "Generate code from protobuf files"
+    cmds:
+      - buf generate
+
+  proto:generate:go:
+    desc: "Generate Go code from protobuf files"
+    cmds:
+      - buf generate --template buf.gen.go.yaml
+
+  proto:generate:rust:
+    desc: "Generate Rust code from protobuf files"
+    cmds:
+      - buf generate --template buf.gen.rust.yaml
+
+  proto:build:
+    desc: "Build protobuf modules"
+    cmds:
+      - buf build
+
+  proto:check:
+    desc: "Check protobuf files (lint + build)"
+    cmds:
+      - task: proto:lint
+      - task: proto:build
 
   # Utilities
   watch:all:
