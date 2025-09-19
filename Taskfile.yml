@@ -27,50 +27,6 @@ tasks:
       - task --list-all
     silent: true
 
-  # Project overview
-  info:
-    desc: "Show project information"
-    silent: true
-    cmds:
-      - echo "{{.PROJECT_NAME}} - Control System Platform"
-      - echo ""
-      - echo "Components:"
-      - echo "  timer    - Timer microservice (jobs/timer/)"
-      - echo "  api      - API service (apps/api/)"
-      - echo "  cli      - CLI tool (cli/)"
-      - echo "  lib      - Shared library (lib/)"
-      - echo ""
-      - echo "Quick commands:"
-      - echo "  task timer:dev     - Timer development cycle"
-      - echo "  task api:dev       - API development cycle"
-      - echo "  task cli:dev       - CLI development cycle"
-      - echo "  task lib:dev       - Library development cycle"
-      - echo ""
-      - echo "  task build:all     - Build all components"
-      - echo "  task test:all      - Test all components"
-      - echo "  task check:all     - Check all components"
-      - echo ""
-      - echo "Protocol Buffers (Buf):"
-      - echo "  task proto:generate     - Generate code for all languages"
-      - echo "  task proto:generate:go  - Generate Go code only"
-      - echo "  task proto:generate:rust - Generate Rust code only"
-      - echo "  task proto:lint         - Lint protobuf files"
-      - echo "  task proto:check        - Lint and build protobuf files"
-      - echo ""
-      - echo "Container & Kubernetes:"
-      - echo "  task k8s:cluster:start  - Start local K8s cluster"
-      - echo "  task k8s:dev            - Full local K8s setup"
-      - echo "  task timer:deploy:local - Deploy timer locally"
-      - echo "  task container:build:all - Build all images"
-      - echo ""
-      - echo "gRPC Testing (Timer):"
-      - echo "  task timer:grpc:check   - Check running timer via gRPC"
-      - echo "  task timer:grpc:stream  - Stream timer status via gRPC"
-      - echo "  task timer:grpc:describe - Show timer gRPC service methods"
-      - echo ""
-      - echo "Use task <component>:<task> to run specific tasks"
-      - echo "   Example - task timer:run or task timer:container:build"
-
   # Workspace-level tasks
   build:all:
     desc: "Build all components"
