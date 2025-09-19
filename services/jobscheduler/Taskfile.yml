@@ -1,0 +1,252 @@
+# JobScheduler Service Tasks
+
+version: '3'
+
+vars:
+  SERVICE_NAME: jobscheduler
+  IMAGE_TAG: '{{.IMAGE_TAG | default "latest"}}'
+  REGISTRY: '{{.REGISTRY | default "your-registry"}}'
+  PORT: '{{.PORT | default "50054"}}'
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
+  GIT_COMMIT:
+    sh: git rev-parse --short HEAD 2>/dev/null || echo "unknown"
+  BUILD_DATE:
+    sh: date -u +"%Y-%m-%dT%H:%M:%SZ"
+  GO_VERSION:
+    sh: go version | cut -d' ' -f3
+  LDFLAGS: >-
+    -X github.com/t-eckert/ctrlsys/services/jobscheduler/internal/version.Version={{.VERSION}}
+    -X github.com/t-eckert/ctrlsys/services/jobscheduler/internal/version.GitCommit={{.GIT_COMMIT}}
+    -X github.com/t-eckert/ctrlsys/services/jobscheduler/internal/version.BuildDate={{.BUILD_DATE}}
+    -X github.com/t-eckert/ctrlsys/services/jobscheduler/internal/version.GoVersion={{.GO_VERSION}}
+
+tasks:
+  # Build tasks
+  build:
+    desc: "Build jobscheduler service"
+    deps: [proto:generate]
+    cmds:
+      - go build -ldflags "{{.LDFLAGS}}" -o {{.SERVICE_NAME}} .
+
+  build:release:
+    desc: "Build jobscheduler service (release)"
+    deps: [proto:generate]
+    cmds:
+      - CGO_ENABLED=0 GOOS=linux go build -ldflags "{{.LDFLAGS}} -s -w" -a -installsuffix cgo -o {{.SERVICE_NAME}} .
+
+  # Protocol Buffers
+  proto:generate:
+    desc: "Generate Go code from protobuf files"
+    cmds:
+      - ./scripts/generate-proto.sh
+    sources:
+      - proto/*.proto
+    generates:
+      - proto/*.pb.go
+
+  proto:clean:
+    desc: "Clean generated protobuf files"
+    cmds:
+      - rm -f proto/*.pb.go
+
+  # Test tasks
+  test:
+    desc: "Run jobscheduler tests"
+    cmds:
+      - go test ./...
+
+  test:verbose:
+    desc: "Run jobscheduler tests with verbose output"
+    cmds:
+      - go test -v ./...
+
+  test:coverage:
+    desc: "Run tests with coverage report"
+    cmds:
+      - go test -coverprofile=coverage.out ./...
+      - go tool cover -html=coverage.out -o coverage.html
+
+  # Code quality
+  fmt:
+    desc: "Format jobscheduler code"
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: "Run go vet on jobscheduler"
+    cmds:
+      - go vet ./...
+
+  lint:
+    desc: "Run golangci-lint"
+    cmds:
+      - golangci-lint run
+
+  check:
+    desc: "Check jobscheduler (fmt + vet + test)"
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: test
+
+  # Dependencies
+  mod:tidy:
+    desc: "Tidy Go modules"
+    cmds:
+      - go mod tidy
+
+  mod:download:
+    desc: "Download Go modules"
+    cmds:
+      - go mod download
+
+  # Development
+  run:
+    desc: "Run jobscheduler service locally"
+    deps: [build]
+    env:
+      GRPC_PORT: '{{.PORT}}'
+      IN_CLUSTER: "false"
+      LOG_LEVEL: '{{.LOG_LEVEL | default "info"}}'
+      LOG_FORMAT: "text"
+      K8S_NAMESPACE: '{{.K8S_NAMESPACE | default "default"}}'
+    cmds:
+      - ./{{.SERVICE_NAME}}
+
+  run:debug:
+    desc: "Run jobscheduler service with debug logging"
+    deps: [build]
+    env:
+      GRPC_PORT: '{{.PORT}}'
+      IN_CLUSTER: "false"
+      LOG_LEVEL: debug
+      LOG_FORMAT: "text"
+      K8S_NAMESPACE: '{{.K8S_NAMESPACE | default "default"}}'
+    cmds:
+      - ./{{.SERVICE_NAME}}
+
+  watch:
+    desc: "Watch and rebuild jobscheduler"
+    cmds:
+      - air
+
+  # Container tasks
+  container:build:
+    desc: "Build jobscheduler container image"
+    cmds:
+      - >
+        podman build
+        --build-arg VERSION={{.VERSION}}
+        --build-arg GIT_COMMIT={{.GIT_COMMIT}}
+        --build-arg BUILD_DATE={{.BUILD_DATE}}
+        --build-arg GO_VERSION={{.GO_VERSION}}
+        -t {{.SERVICE_NAME}}:{{.IMAGE_TAG}} .
+
+  container:run:
+    desc: "Run jobscheduler in Podman"
+    cmds:
+      - podman run --rm -p {{.PORT}}:{{.PORT}}
+        -e GRPC_PORT={{.PORT}}
+        -e IN_CLUSTER=false
+        -e LOG_LEVEL=info
+        {{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+
+  container:push:
+    desc: "Push jobscheduler container image"
+    cmds:
+      - podman tag {{.SERVICE_NAME}}:{{.IMAGE_TAG}} {{.REGISTRY}}/{{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+      - podman push {{.REGISTRY}}/{{.SERVICE_NAME}}:{{.IMAGE_TAG}}
+
+  # Kubernetes tasks
+  k8s:apply:
+    desc: "Apply jobscheduler Kubernetes resources"
+    cmds:
+      - kubectl apply -f k8s/
+
+  k8s:delete:
+    desc: "Delete jobscheduler Kubernetes resources"
+    cmds:
+      - kubectl delete -f k8s/ --ignore-not-found=true
+
+  k8s:logs:
+    desc: "Show jobscheduler logs in Kubernetes"
+    cmds:
+      - kubectl logs -l app={{.SERVICE_NAME}} --tail=100 -f
+
+  k8s:port-forward:
+    desc: "Port forward jobscheduler service"
+    cmds:
+      - kubectl port-forward svc/{{.SERVICE_NAME}} {{.PORT}}:{{.PORT}}
+
+  k8s:status:
+    desc: "Show jobscheduler status in Kubernetes"
+    cmds:
+      - kubectl get deployments,pods,services -l app={{.SERVICE_NAME}}
+
+  # Deployment
+  deploy:
+    desc: "Deploy jobscheduler (build + push + apply)"
+    cmds:
+      - task: container:build
+      - task: container:push
+      - task: k8s:apply
+
+  deploy:local:
+    desc: "Deploy jobscheduler to local Kubernetes cluster"
+    cmds:
+      - echo "Building container image..."
+      - task: container:build
+      - echo "Loading image into local cluster..."
+      - task: k8s:cluster:load
+      - echo "Applying Kubernetes resources..."
+      - task: k8s:apply
+      - echo "Local deployment complete!"
+
+  # Use shared cluster management from timer service
+  k8s:cluster:load:
+    desc: "Load jobscheduler image into Kubernetes cluster"
+    cmds:
+      - |
+        echo "Loading {{.SERVICE_NAME}}:{{.IMAGE_TAG}} into cluster..."
+        podman save {{.SERVICE_NAME}}:{{.IMAGE_TAG}} | podman exec -i kind-control-plane ctr -n k8s.io images import -
+
+  # Health and monitoring
+  health:
+    desc: "Check jobscheduler health"
+    deps: [build]
+    cmds:
+      - ./{{.SERVICE_NAME}} health
+
+  # Cleanup
+  clean:
+    desc: "Clean jobscheduler build artifacts"
+    cmds:
+      - rm -f {{.SERVICE_NAME}}
+      - rm -f coverage.out coverage.html
+      - task: proto:clean
+
+  # Development shortcuts
+  dev:
+    desc: "Quick development cycle"
+    cmds:
+      - task: check
+      - task: run:debug
+
+  # Tools installation
+  tools:install:
+    desc: "Install development tools"
+    cmds:
+      - go install github.com/cosmtrek/air@latest
+      - go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+      - go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+      - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+  # Version information
+  version:info:
+    desc: "Show version information that will be embedded in builds"
+    cmds:
+      - echo "Version {{.VERSION}}"
+      - echo "Git Commit {{.GIT_COMMIT}}"
+      - echo "Build Date {{.BUILD_DATE}}"
+      - echo "Go Version {{.GO_VERSION}}"
