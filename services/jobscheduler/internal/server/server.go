@@ -8,11 +8,11 @@ import (
 	"connectrpc.com/connect"
 	"go.uber.org/zap"
 
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
+	"github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1/v1connect"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/config"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/jobs"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/k8s"
-	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
-	"github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1/v1connect"
 )
 
 // Server implements the JobScheduler ConnectRPC service
@@ -188,7 +188,6 @@ func (s *Server) validateScheduleJobRequest(req *v1.ScheduleJobRequest) error {
 
 	return nil
 }
-
 
 // getStatusMessage returns a human-readable message for a job status
 func getStatusMessage(status v1.JobStatus) string {

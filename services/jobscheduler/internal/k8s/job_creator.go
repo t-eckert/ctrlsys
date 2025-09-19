@@ -7,9 +7,9 @@ import (
 	"go.uber.org/zap"
 	batchv1 "k8s.io/api/batch/v1"
 
+	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/config"
 	"github.com/t-eckert/ctrlsys/services/jobscheduler/internal/jobs"
-	v1 "github.com/t-eckert/ctrlsys/gen/go/ctrlsys/jobscheduler/v1"
 )
 
 // JobCreator handles the creation and management of Kubernetes Jobs
