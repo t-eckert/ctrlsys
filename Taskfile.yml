@@ -63,6 +63,11 @@ tasks:
       - echo "  task timer:deploy:local - Deploy timer locally"
       - echo "  task container:build:all - Build all images"
       - echo ""
+      - echo "gRPC Testing (Timer):"
+      - echo "  task timer:grpc:check   - Check running timer via gRPC"
+      - echo "  task timer:grpc:stream  - Stream timer status via gRPC"
+      - echo "  task timer:grpc:describe - Show timer gRPC service methods"
+      - echo ""
       - echo "Use task <component>:<task> to run specific tasks"
       - echo "   Example - task timer:run or task timer:container:build"
 

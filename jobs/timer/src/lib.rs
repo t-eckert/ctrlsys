@@ -14,7 +14,7 @@ pub use timer::{TimerRunner, TimerServiceImpl, TimerState, TimerStatus};
 
 // Include generated protobuf code
 pub mod timer_proto {
-    tonic::include_proto!("timer");
+    tonic::include_proto!("ctrlsys.timer.v1");
 }
 
 // Re-export protobuf types for convenience

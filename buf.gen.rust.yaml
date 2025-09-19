@@ -1,6 +1,6 @@
-version: v1
+version: v2
 plugins:
-  - name: rust
+  - path: protoc-gen-rust
     out: gen/rust
     opt:
       - experimental-codegen=enabled

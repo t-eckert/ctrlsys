@@ -278,6 +278,56 @@ tasks:
     cmds:
       - cargo run -- health
 
+  grpc:check:
+    desc: "Check running timer via gRPC using grpcurl"
+    env:
+      TIMER_ID: '{{.TIMER_ID | default "dev-timer"}}'
+      GRPC_HOST: '{{.GRPC_HOST | default "localhost:50051"}}'
+    cmds:
+      - |
+        echo "Checking timer '$TIMER_ID' on $GRPC_HOST..."
+        if ! lsof -i :50051 > /dev/null 2>&1; then
+          echo "ERROR: No service running on port 50051"
+          echo "Start the timer service first with: task run"
+          exit 1
+        fi
+        grpcurl -plaintext \
+          -import-path ../../proto/timer \
+          -proto ctrlsys/timer/v1/timer.proto \
+          -d '{"timer_id": "'$TIMER_ID'"}' \
+          $GRPC_HOST \
+          ctrlsys.timer.v1.TimerService/CheckTimer
+
+  grpc:stream:
+    desc: "Stream timer status via gRPC using grpcurl"
+    env:
+      TIMER_ID: '{{.TIMER_ID | default "dev-timer"}}'
+      GRPC_HOST: '{{.GRPC_HOST | default "localhost:50051"}}'
+    cmds:
+      - |
+        echo "Streaming timer '$TIMER_ID' from $GRPC_HOST (Press Ctrl+C to stop)..."
+        if ! lsof -i :50051 > /dev/null 2>&1; then
+          echo "ERROR: No service running on port 50051"
+          echo "Start the timer service first with: task run"
+          exit 1
+        fi
+        grpcurl -plaintext \
+          -import-path ../../proto/timer \
+          -proto ctrlsys/timer/v1/timer.proto \
+          -d '{"timer_id": "'$TIMER_ID'"}' \
+          $GRPC_HOST \
+          ctrlsys.timer.v1.TimerService/StreamTimer
+
+  grpc:describe:
+    desc: "Describe timer gRPC service using grpcurl"
+    cmds:
+      - |
+        echo "Timer service methods:"
+        grpcurl -plaintext \
+          -import-path ../../proto/timer \
+          -proto ctrlsys/timer/v1/timer.proto \
+          describe ctrlsys.timer.v1.TimerService
+
   # Cleanup
   clean:
     desc: "Clean timer build artifacts"
