@@ -1,0 +1,91 @@
+version: "3"
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  default:
+    desc: "Lists all available tasks"
+    cmds:
+      - task --list-all
+    silent: true
+
+  dev:
+    cmds:
+      - npm run dev
+    silent: true
+
+  install:
+    cmds:
+      - npm install
+    silent: true
+
+  build:
+    cmds:
+      - npm run build
+    silent: true
+
+  preview:
+    cmds:
+      - npm run preview
+    silent: true
+
+  check:
+    cmds:
+      - npm run check
+    silent: true
+
+  check:watch:
+    cmds:
+      - npm run check:watch
+    silent: true
+
+  format:
+    cmds:
+      - npm run format
+    silent: true
+
+  lint:
+    cmds:
+      - npm run lint
+    silent: true
+
+  test:unit:
+    cmds:
+      - npm run test:unit
+    silent: true
+
+  test:
+    cmds:
+      - npm run test
+    silent: true
+
+  test:e2e:
+    cmds:
+      - npm run test:e2e
+    silent: true
+
+  db:push:
+    cmds:
+      - npm run db:push
+    silent: true
+
+  db:migrate:
+    cmds:
+      - npm run db:migrate
+    silent: true
+
+  db:studio:
+    cmds:
+      - npm run db:studio
+    silent: true
+
+  storybook:
+    cmds:
+      - npm run storybook
+    silent: true
+
+  build-storybook:
+    cmds:
+      - npm run build-storybook
+    silent: true

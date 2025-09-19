@@ -1,0 +1,7 @@
+export { default as Table } from "./components/table/table.svelte"
+export { default as Tbody } from "./components/table/tbody.svelte"
+export { default as Td } from "./components/table/td.svelte"
+export { default as Tfoot } from "./components/table/tfoot.svelte"
+export { default as Th } from "./components/table/th.svelte"
+export { default as Thead } from "./components/table/thead.svelte"
+export { default as Tr } from "./components/table/tr.svelte"
