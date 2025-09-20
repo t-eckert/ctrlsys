@@ -250,7 +250,7 @@ func (h *TimerJobHandler) GenerateJobManifest(ctx context.Context, request *v1.S
 }
 
 // ExtractJobDetails extracts timer-specific details from a Kubernetes Job
-func (h *TimerJobHandler) ExtractJobDetails(job *batchv1.Job) (interface{}, error) {
+func (h *TimerJobHandler) ExtractJobDetails(job *batchv1.Job) (any, error) {
 	if len(job.Spec.Template.Spec.Containers) == 0 {
 		return nil, fmt.Errorf("job has no containers")
 	}

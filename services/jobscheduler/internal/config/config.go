@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -175,14 +176,7 @@ func (c *Config) Validate() error {
 
 	// Validate log level
 	validLogLevels := []string{"debug", "info", "warn", "error", "dpanic", "panic", "fatal"}
-	valid := false
-	for _, level := range validLogLevels {
-		if c.Logging.Level == level {
-			valid = true
-			break
-		}
-	}
-	if !valid {
+	if !slices.Contains(validLogLevels, c.Logging.Level) {
 		return fmt.Errorf("invalid log level: %s", c.Logging.Level)
 	}
 

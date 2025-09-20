@@ -30,7 +30,7 @@ type JobHandler interface {
 	GenerateJobManifest(ctx context.Context, request *v1.ScheduleJobRequest, defaults *JobDefaults) (*batchv1.Job, error)
 
 	// ExtractJobDetails extracts job-specific details from a Kubernetes Job
-	ExtractJobDetails(job *batchv1.Job) (interface{}, error)
+	ExtractJobDetails(job *batchv1.Job) (any, error)
 
 	// GetDefaultImage returns the default container image for this job type
 	GetDefaultImage() string

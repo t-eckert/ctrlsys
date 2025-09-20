@@ -1,27 +1,37 @@
 # Build stage
 FROM golang:1.25-alpine AS builder
 
-# Install build dependencies
-RUN apk add --no-cache git protobuf-dev protoc
+# Install build dependencies including Buf
+RUN apk add --no-cache git curl && \
+    # Install Buf (latest version)
+    BUF_VERSION=1.57.2 && \
+    curl -sSL "https://github.com/bufbuild/buf/releases/download/v${BUF_VERSION}/buf-$(uname -s)-$(uname -m)" -o "/usr/local/bin/buf" && \
+    chmod +x "/usr/local/bin/buf"
 
-# Set working directory
+# Set working directory to repository root
 WORKDIR /app
 
-# Copy go mod files
+# Copy root go.mod and go.sum for dependency resolution
 COPY go.mod go.sum ./
 
-# Download dependencies
+# Copy buf configuration
+COPY buf.yaml buf.gen.yaml ./
+
+# Copy proto files
+COPY proto/ ./proto/
+
+# Generate protobuf code using Buf
+RUN buf generate
+
+# Copy jobscheduler specific files
+COPY services/jobscheduler/ ./services/jobscheduler/
+WORKDIR /app/services/jobscheduler
+
+# Download jobscheduler dependencies
 RUN go mod download
 
-# Install protobuf generation tools
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-
-# Copy source code
-COPY . .
-
-# Generate protobuf code
-RUN chmod +x scripts/generate-proto.sh && ./scripts/generate-proto.sh
+# Copy jobscheduler source code
+COPY services/jobscheduler/ ./
 
 # Set build args for version information
 ARG VERSION=dev
@@ -51,7 +61,7 @@ RUN adduser -D -s /bin/sh jobscheduler
 WORKDIR /app
 
 # Copy the binary from builder stage
-COPY --from=builder /app/jobscheduler .
+COPY --from=builder /app/services/jobscheduler/jobscheduler .
 
 # Change ownership of the app directory
 RUN chown -R jobscheduler:jobscheduler /app

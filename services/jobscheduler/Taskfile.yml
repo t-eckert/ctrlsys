@@ -5,7 +5,7 @@ version: '3'
 vars:
   SERVICE_NAME: jobscheduler
   IMAGE_TAG: '{{.IMAGE_TAG | default "latest"}}'
-  REGISTRY: '{{.REGISTRY | default "your-registry"}}'
+  REGISTRY: '{{.REGISTRY | default "ghcr.io/t-eckert/ctrlsys"}}'
   PORT: '{{.PORT | default "50054"}}'
   VERSION:
     sh: git describe --tags --always --dirty 2>/dev/null || echo "dev"
@@ -135,6 +135,7 @@ tasks:
   # Container tasks
   container:build:
     desc: "Build jobscheduler container image"
+    dir: ../../
     cmds:
       - >
         podman build
@@ -142,10 +143,12 @@ tasks:
         --build-arg GIT_COMMIT={{.GIT_COMMIT}}
         --build-arg BUILD_DATE={{.BUILD_DATE}}
         --build-arg GO_VERSION={{.GO_VERSION}}
+        -f services/jobscheduler/Containerfile
         -t {{.SERVICE_NAME}}:{{.IMAGE_TAG}} .
 
   container:run:
     desc: "Run jobscheduler in Podman"
+    deps: [container:build]
     cmds:
       - podman run --rm -p {{.PORT}}:{{.PORT}}
         -e GRPC_PORT={{.PORT}}
