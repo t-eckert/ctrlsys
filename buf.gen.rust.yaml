@@ -1,7 +1,0 @@
-version: v2
-plugins:
-  - path: protoc-gen-rust
-    out: gen/rust
-    opt:
-      - experimental-codegen=enabled
-      - kernel=cpp

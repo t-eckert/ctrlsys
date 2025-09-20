@@ -18,7 +18,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: timer
-        image: timer-service:latest
+        image: ghcr.io/t-eckert/ctrlsys/timer:latest
         imagePullPolicy: IfNotPresent
         env:
         - name: TIMER_DURATION_SECONDS

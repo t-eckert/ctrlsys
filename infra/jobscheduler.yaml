@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jobscheduler
+  labels:
+    app: jobscheduler
+    component: scheduler
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jobscheduler
+  template:
+    metadata:
+      labels:
+        app: jobscheduler
+        component: scheduler
+        version: v1
+    spec:
+      serviceAccountName: jobscheduler
+      containers:
+      - name: jobscheduler
+        image: jobscheduler:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: grpc
+          containerPort: 50054
+          protocol: TCP
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: GRPC_PORT
+          value: "50054"
+        - name: METRICS_PORT
+          value: "8080"
+        - name: K8S_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: IN_CLUSTER
+          value: "true"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: LOG_FORMAT
+          value: "json"
+        - name: TIMER_CONTROL_PLANE_ENDPOINT
+          value: "http://control-plane-service:50053"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          exec:
+            command:
+            - /app/jobscheduler
+            - health
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 10
+          failureThreshold: 3
+        readinessProbe:
+          exec:
+            command:
+            - /app/jobscheduler
+            - health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      securityContext:
+        fsGroup: 1000
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: jobscheduler
+  labels:
+    app: jobscheduler
+    component: scheduler
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: jobscheduler
+  labels:
+    app: jobscheduler
+    component: scheduler
+rules:
+# Jobs management
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+- apiGroups: ["batch"]
+  resources: ["jobs/status"]
+  verbs: ["get", "list", "watch"]
+
+# Pods read access (for job status monitoring)
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get", "list"]
+
+# Events read access (for debugging)
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "list", "watch"]
+
+# Namespaces read access
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: jobscheduler
+  labels:
+    app: jobscheduler
+    component: scheduler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jobscheduler
+subjects:
+- kind: ServiceAccount
+  name: jobscheduler
+  namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jobscheduler
+  labels:
+    app: jobscheduler
+    component: scheduler
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: 50054
+    targetPort: grpc
+    protocol: TCP
+  - name: metrics
+    port: 8080
+    targetPort: metrics
+    protocol: TCP
+  selector:
+    app: jobscheduler

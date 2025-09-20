@@ -94,8 +94,9 @@ tasks:
   # Container tasks
   container:build:
     desc: "Build timer container image"
+    dir: ../../
     cmds:
-      - podman build -t {{.SERVICE_NAME}}:{{.IMAGE_TAG}} .
+      - podman build -t {{.SERVICE_NAME}}:{{.IMAGE_TAG}} -f ./jobs/timer/Containerfile .
 
   container:run:
     desc: "Run timer in Podman"
