@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with the ctrlsys Console application.
 
 ## Development Commands
 
@@ -36,12 +36,19 @@ All npm commands can also be run using `task` (e.g., `task dev`, `task build`, `
 
 ## Architecture Overview
 
+### ctrlsys Console Application
+
+This is the frontend interface for the ctrlsys control system platform, providing management capabilities for:
+
+- **Job Scheduler**: Interface for managing Kubernetes jobs via ConnectRPC API
+- **Timer Service**: Management of timer-based operations via gRPC API
+- **System Health**: Monitoring and status dashboard for all services
+
 ### Component System
 
 - **UI Components**: Located in `src/lib/components/` with extensive Bits UI integration
-- **Elements**: Basic HTML elements with styling in `src/lib/elements/`
+- **Platform Pages**: Job management (`/jobs`), Timer management (`/timers`), Health monitoring (`/health`)
 - **Stories**: Storybook stories in component directories and `src/stories/`
-- **Templates**: Component/page templates in `templates/` directory (currently empty but referenced)
 
 ### Styling & Theming
 

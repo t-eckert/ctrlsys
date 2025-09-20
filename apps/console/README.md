@@ -1,223 +1,146 @@
-# SvelteKit Kick Start
+# ctrlsys Console
 
-This is a starter SvelteKit set up that includes all of the tooling and configuration that I like to use when building websites. It's very specifically tuned to my needs. If you would like to make something like it your own, fork this!
-
-> This is a work in progress. I am still developing some of the items that are listed below.
-
-## Quickstart
-
-```shell
-npx degit t-eckert/sveltekit-kickstart {project-name}
-```
-
-This will copy down the repository without the Git history.
-
-## Environment Setup
-
-### 1. Environment Variables
-
-Copy the example environment file and configure it for your needs:
-
-```shell
-cp .env.example .env
-```
-
-The only required environment variable is:
-
-- `DATABASE_URL`: Path to your SQLite database file (e.g., `file:local.db`)
-
-### 2. Database Setup
-
-Initialize your database with the schema:
-
-```shell
-# Install dependencies
-npm install
-
-# Generate and run database migrations
-npm run db:push
-
-# Optional: Open Drizzle Studio to view your database
-npm run db:studio
-```
-
-### 3. Development
-
-Start the development server:
-
-```shell
-npm run dev
-```
-
-### 4. Customize for Your Project
-
-**Remove the Splash Component**: The home page (`/`) includes a splash component showcasing the starter kit. To build your own site:
-
-1. Edit `src/routes/+page.svelte` to remove the `<Splash />` component
-2. Optionally delete `src/lib/components/splash/` directory
-3. Build your own home page content
-
-### 5. Authentication Setup
-
-The application includes a complete authentication system with:
-
-- User registration at `/auth/register`
-- User login at `/auth/login`
-- Session management with secure cookies
-- Password hashing using Argon2
-- Audit logging for security events
-
-Create your first user by visiting `/auth/register` and then log in at `/auth/login`.
-
-### 6. Admin Features
-
-Once logged in, you can access admin features at:
-
-- `/admin` - Admin dashboard
-- `/admin/users` - User management
-- `/admin/feedback` - Feedback management and analytics
-- `/admin/audit` - Audit log viewer
-- `/admin/kv` - Key-value store management
-
-### 7. User Feedback System
-
-The starter includes a complete feedback system:
-
-- **User Submission**: `/feedback` - Users can submit feedback with ratings and contact info
-- **Admin Management**: `/admin/feedback` - View, filter, and manage feedback submissions
-- **Analytics**: Feedback statistics including average ratings and status tracking
-- **Audit Integration**: All feedback actions are logged for security
-
-### Production Deployment
-
-For production deployments:
-
-1. Set `DATABASE_URL` to your production database (e.g., Turso LibSQL URL)
-2. Configure additional environment variables as needed
-3. Run the build command: `npm run build`
-4. Use the production server: `npm run preview`
-
-See `.env.example` for all available configuration options.
-
-## Why
-
-I have built several SvelteKit sites. I love the framework and I can work very quickly in it, but I found myself rewriting a lot of the same functionality with each new site. This starter kit allows me to solve all the repetitive and difficult problems once and build from there.
-
-I've also formatted this project for AI-based development with Claude. This includes a CLAUDE.md file; tools for creating new API routes, componenents, pages, and stores; and descriptions of components to help Claude use them effectively.
+A modern web interface for managing the ctrlsys control system platform. Built with SvelteKit 2 and Svelte 5, this console provides a unified interface for managing jobs, timers, and monitoring system health across your Kubernetes infrastructure.
 
 ## Features
 
-### Pre-built Components
+- **Job Management**: Schedule and monitor Kubernetes jobs through the JobScheduler service
+- **Timer Operations**: Create and manage timer-based operations via the Timer service
+- **System Monitoring**: Real-time health checks and status monitoring
+- **Dark/Light Theming**: Automatic system theme detection with manual override
+- **Modern UI**: Built with Tailwind CSS 4 and accessible component primitives
+- **Authentication**: Secure user management with session-based auth
 
-Using [Bits UI](https://www.bits-ui.com/) as a foundation, this project offers
+## Quick Start
 
-- [Accordion](./src/lib/components/accordion/accordion.svelte)
-- [Article]
-- Avatar
-- Avatar Group
-- Badge
-- Breadcrumb
-- Button
-- Card
-- Carousel
-- Checkbox
-- Codeblock
-- Dropdown Menu
-- Email
-- Empty State
-- Error
-- Filedrop
-- Head
-- Image
-- Indicator
-- Input
-- Link Preview
-- Menubar
-- Meter
-- Modal
-- Money
-- Navigation Menu
-- Pagination
-- Panel
-- Popover
-- Progress Bar
-- Radio Group
-- Range Calculator
-- Relative Date
-- Scroll Area
-- Select
-- Sidebar
-- Slider
-- Switch
-- Tabs
-- Time Field
-- Time Range Field
-- Toggle
-- Toggle Group
-- Toolbar
-- Tooltip
-- Window
+### Prerequisites
 
-### Tailwind CSS 4 and Class Variance Authority
+- Node.js 18+
+- ctrlsys backend services running (JobScheduler, Timer service)
 
-Already configured for using Tailwind out of the box with `dark:` set up for dark theming. Includes the Prettier config to consistently order Tailwind classes. Uses Class Variance Authority to manage complex variants (e.g. different button styling)
+### Development Setup
 
-### Taskfile
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
 
-Common actions
+2. **Environment Configuration**
+   ```bash
+   cp .env.example .env
+   ```
 
-### Phosphor Icons
+   Configure the required environment variable:
+   - `DATABASE_URL`: Path to your SQLite database (e.g., `file:local.db`)
 
-An icon library using [Phosphor Icons](https://phosphoricons.com/).
+3. **Database Setup**
+   ```bash
+   # Initialize database schema
+   npm run db:push
 
-### Testing
+   # Optional: Open database studio
+   npm run db:studio
+   ```
 
-Configured unit testing with Vitest.
+4. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
 
-### Open Graph Config and OG Image Generator
+   Access the console at http://localhost:5173
 
-### Bits UI
+### Production Deployment
 
-Many of the components in this starter kit make use of [Bits UI](https://www.bits-ui.com/). It is a spectacular system for developing more complex components.
+1. **Build for Production**
+   ```bash
+   npm run build
+   ```
 
-### User and Admin pages
+2. **Preview Production Build**
+   ```bash
+   npm run preview
+   ```
 
-### Caddy
+## Architecture
 
-### Uploader to S3 Compatible Object Stores
+### Technology Stack
 
-### Libsql (SQLite) Configuration for Edge DBs using Drizzle
+- **SvelteKit 2** - Full-stack web framework
+- **Svelte 5** - Component framework with runes-based reactivity
+- **TypeScript** - Type-safe development
+- **Tailwind CSS 4** - Utility-first styling with dark mode
+- **Bits UI** - Accessible component primitives
+- **Drizzle ORM** - Type-safe database operations
+- **LibSQL/SQLite** - Edge-compatible database
 
-The kit comes pre-configured for using Drizzle with SQLite with the Libsql
+### Project Structure
 
-### Key-Value Store
+```
+src/
+├── lib/
+│   ├── components/     # Reusable UI components
+│   ├── layouts/        # Page layout components
+│   ├── theme/          # Theme management
+│   ├── server/         # Server-side utilities
+│   └── utils/          # Shared utilities
+├── routes/
+│   ├── (pages)/        # Main application pages
+│   ├── auth/           # Authentication pages
+│   └── admin/          # Admin interface
+└── app.html            # HTML template
+```
 
-Using the Libsql edge DB, this key-value store provides a great way to s
+### Backend Integration
 
-### Audit Log
+The console integrates with ctrlsys backend services:
 
-### Containerization
+- **JobScheduler Service**: ConnectRPC API for job management
+- **Timer Service**: gRPC API for timer operations
+- **Control Plane**: Central coordination service
 
-### A Considered Font Stack
+## Development
 
-### Templates
+### Available Scripts
 
-### Storybook Configuration
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run check` - Type checking and linting
+- `npm run test` - Run all tests
+- `npm run test:unit` - Unit tests with Vitest
+- `npm run test:e2e` - E2E tests with Playwright
+- `npm run storybook` - Component documentation
 
-### Toast
+### Component Development
 
-### Light/Dark Theming
+The console uses a comprehensive component library built on Bits UI:
 
-## Opinions
+- Fully accessible components following WAI-ARIA guidelines
+- Consistent design system with Class Variance Authority (CVA)
+- Dark/light theme support throughout
+- TypeScript interfaces for all component props
+- Storybook documentation for component usage
 
-- I only use `+page.server.ts` because I often just want my page load code to run on the server anyway.
+### Authentication
 
-## Things to check out
+Built-in authentication system includes:
 
-- https://svelteflow.dev/
-- https://github.com/beyonk-group/svelte-mapbox
-- https://threlte.xyz/
+- User registration and login
+- Secure session management
+- Password hashing with Argon2
+- Audit logging for security events
+- Admin user management interface
 
-## Helpful Links
+## Contributing
 
-- [Icons](https://phosphoricons.com/): Full, searchable listing of icons in the icons library.
+When adding new features:
+
+1. Follow existing component patterns and TypeScript conventions
+2. Add Storybook stories for new components
+3. Include proper accessibility attributes
+4. Test in both light and dark themes
+5. Update tests for new functionality
+
+## License
+
+This project is part of the ctrlsys platform - a hobby project for homelab control systems.
