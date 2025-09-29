@@ -24,7 +24,14 @@ tasks:
   default:
     desc: "List all available tasks"
     cmds:
+      - task:logo
       - task --list-all
+    silent: true
+
+  logo:
+    desc: "Print the ctrlsys logo"
+    cmds:
+      - cat ./logo
     silent: true
 
   # Workspace-level tasks
