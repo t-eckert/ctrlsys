@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { initNavigationStore } from "./navigation-store.svelte"
+	import { initToolbarStore } from "./toolbar-store.svelte"
 	import type { Snippet } from "svelte"
 
 	let { children }: { children: Snippet } = $props()
 
-	initNavigationStore()
+	initToolbarStore()
 </script>
 
 {@render children()}

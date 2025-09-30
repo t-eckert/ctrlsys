@@ -1,33 +1,37 @@
 /* Routes
  *
- * This file provides
+ * Application navigation routes for the Console
  */
+
+import type { Component } from "svelte"
+import { House, Clock, Briefcase, Heart } from "phosphor-svelte"
 
 export type Route = {
 	name: string
 	path: string
+	icon: Component
 }
 
 const routes: Route[] = [
 	{
-		name: "Feedback",
-		path: "/feedback"
+		name: "Home",
+		path: "/",
+		icon: House
 	},
 	{
-		name: "About",
-		path: "/about"
+		name: "Jobs",
+		path: "/jobs",
+		icon: Briefcase
 	},
 	{
-		name: "Validators",
-		path: "/demo/validators"
+		name: "Timers",
+		path: "/timers",
+		icon: Clock
 	},
 	{
-		name: "Login",
-		path: "/auth/login"
-	},
-	{
-		name: "Admin",
-		path: "/admin"
+		name: "Health",
+		path: "/health",
+		icon: Heart
 	}
 ]
 
