@@ -1,14 +1,19 @@
 mod api;
+mod models;
+mod state;
+
+use state::AppState;
 
 #[tokio::main]
 async fn main() {
-    let app = api::routes();
+    // Initialize application state
+    let state = AppState::new();
 
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000")
-        .await
-        .unwrap();
+    // Build the API router with state
+    let app = api::routes(state);
 
-    println!("Control Plane listening on {}", listener.local_addr().unwrap());
+    // Bind to port 3000
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
 
     axum::serve(listener, app).await.unwrap();
 }
