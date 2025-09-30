@@ -19,12 +19,8 @@
 
 	<div class="flex justify-between items-center mb-6">
 		<div class="flex gap-4">
-			<Button>
-				{@render children()}Schedule New Job
-			</Button>
-			<Button role="secondary">
-				{@render children()}Refresh
-			</Button>
+			<Button>Schedule New Job</Button>
+			<Button role="secondary">Refresh</Button>
 		</div>
 		<div class="flex gap-2">
 			<Badge>Running: 3</Badge>
@@ -40,9 +36,7 @@
 				<p class="text-neutral-600 dark:text-neutral-400 mb-4">
 					Get started by scheduling your first job
 				</p>
-				<Button>
-					{@render children()}Schedule Job
-				</Button>
+				<Button>Schedule Job</Button>
 			</div>
 		</EmptyState>
 	</div>

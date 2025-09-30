@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest"
+import type { ComponentProps } from "svelte"
 
 // Import the component for type checking
-import type Head from "./head.svelte"
+import Head from "./head.svelte"
 
 describe("Head Component", () => {
 	it("should have correct TypeScript interface", () => {
 		// Test that the Props interface is correctly defined
-		type HeadProps = ConstructorParameters<typeof Head>[0]["props"]
+		type HeadProps = ComponentProps<typeof Head>
 
 		// Test required properties
 		const requiredProps: HeadProps = {

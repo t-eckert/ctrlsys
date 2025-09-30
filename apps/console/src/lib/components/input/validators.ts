@@ -1,6 +1,6 @@
 import * as EmailValidator from "email-validator"
 
-export type Validator = (value: string | number) => [boolean, string?]
+export type Validator = (value: string | number | File | null | undefined) => [boolean, string?]
 
 export const alwaysValid: Validator = () => [true]
 

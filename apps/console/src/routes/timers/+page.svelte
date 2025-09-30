@@ -19,12 +19,8 @@
 
 	<div class="flex justify-between items-center mb-6">
 		<div class="flex gap-4">
-			<Button>
-				{@render children()}Create Timer
-			</Button>
-			<Button role="secondary">
-				{@render children()}Refresh
-			</Button>
+			<Button>Create Timer</Button>
+			<Button role="secondary">Refresh</Button>
 		</div>
 		<div class="flex gap-2">
 			<Badge>Active: 2</Badge>
@@ -40,9 +36,7 @@
 				<p class="text-neutral-600 dark:text-neutral-400 mb-4">
 					Create your first timer to get started
 				</p>
-				<Button>
-					{@render children()}Create Timer
-				</Button>
+				<Button>Create Timer</Button>
 			</div>
 		</EmptyState>
 	</div>

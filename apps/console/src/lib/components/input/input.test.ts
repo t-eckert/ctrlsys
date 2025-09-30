@@ -105,7 +105,7 @@ describe("Input Component", () => {
 	})
 
 	it("handles validation errors with aria-invalid", () => {
-		const invalidValidator = () => [false, "This field is invalid"]
+		const invalidValidator = (): [boolean, string?] => [false, "This field is invalid"]
 		const { getByLabelText } = render(Input, {
 			props: {
 				id: "invalid-input",
@@ -133,7 +133,7 @@ describe("Input Component", () => {
 	})
 
 	it("displays validation error messages", () => {
-		const invalidValidator = () => [false, "Custom error message"]
+		const invalidValidator = (): [boolean, string?] => [false, "Custom error message"]
 		const { getByText } = render(Input, {
 			props: {
 				id: "error-input",

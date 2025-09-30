@@ -4,4 +4,4 @@
 	let { children }: { children?: Snippet } = $props()
 </script>
 
-<tbody>{@render children()}</tbody>
+<tbody>{#if children}{@render children()}{/if}</tbody>
