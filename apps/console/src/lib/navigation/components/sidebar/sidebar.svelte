@@ -18,7 +18,7 @@
 </script>
 
 <nav
-	class="sidebar flex h-full w-60 flex-col border-r border-neutral-200 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-900"
+	class="flex h-full w-60 flex-col border-r border-neutral-200 bg-neutral-50 dark:border-neutral-900 dark:bg-neutral-950"
 >
 	<div class="flex flex-col gap-1 p-2">
 		{#each routes as route}
@@ -39,3 +39,4 @@
 		{/each}
 	</div>
 </nav>
+

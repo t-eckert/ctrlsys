@@ -13,15 +13,15 @@
 </script>
 
 <div
-	class="toolbar flex h-8 w-full items-center border-b border-neutral-200 bg-neutral-50 px-4 dark:border-neutral-800 dark:bg-neutral-900"
+	class="flex w-full items-center justify-between border-b border-neutral-100 bg-white px-2 py-1 dark:border-neutral-900 dark:bg-neutral-950"
 >
-	<div class="flex flex-1 items-center gap-4">
-		<span class="text-xs font-semibold text-neutral-900 dark:text-neutral-100">CTRLSYS</span>
+	<span class="font-mono text-xs text-neutral-900 dark:text-neutral-100">CTRLSYS</span>
 
+	<div class="flex items-center gap-4">
 		<!-- Search Box -->
 		<div class="relative flex items-center">
 			<MagnifyingGlass
-				size={14}
+				size={12}
 				class="absolute left-2 text-neutral-400 dark:text-neutral-500"
 				weight="bold"
 			/>
@@ -29,12 +29,11 @@
 				type="text"
 				placeholder="Search..."
 				bind:value={store.searchQuery}
-				class="h-6 w-64 rounded border border-neutral-300 bg-white pl-7 pr-2 text-xs text-neutral-900 placeholder-neutral-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
+				class="h-6 w-64 rounded border border-neutral-300 bg-white pr-2 pl-7 text-xs text-neutral-900 placeholder-neutral-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100 dark:placeholder-neutral-500"
 			/>
 		</div>
 	</div>
 
-	<!-- Right Section: Theme Toggle -->
 	<div class="flex items-center gap-2">
 		<button
 			onclick={toggleTheme}
@@ -49,3 +48,4 @@
 		</button>
 	</div>
 </div>
+
