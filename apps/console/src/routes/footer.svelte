@@ -7,11 +7,8 @@
 		BookOpen,
 		Code,
 		Bug,
-		Heart,
 		Lightning,
-		Palette,
-		Database,
-		Shield
+		Palette
 	} from "phosphor-svelte"
 
 	const currentYear = new Date().getFullYear()
@@ -23,18 +20,15 @@
 			{ name: "Components", href: "/storybook", icon: Palette, external: true },
 			{
 				name: "GitHub",
-				href: "https://github.com/t-eckert/sveltekit-kickstart",
+				href: "https://github.com/t-eckert/ctrlsys",
 				icon: GithubLogo,
 				external: true
 			}
 		],
 		features: [
-			{ name: "Feedback System", href: "/feedback", icon: Heart },
-			{ name: "Admin Panel", href: "/admin", icon: Shield },
-			{ name: "Database Studio", href: "#", icon: Database, action: "npm run db:studio" },
 			{
 				name: "Report Bug",
-				href: "https://github.com/t-eckert/sveltekit-kickstart/issues",
+				href: "https://github.com/t-eckert/ctrlsys/issues",
 				icon: Bug,
 				external: true
 			}
@@ -42,8 +36,7 @@
 		developer: [
 			{ name: "SvelteKit", href: "https://kit.svelte.dev", external: true },
 			{ name: "TypeScript", href: "https://www.typescriptlang.org", external: true },
-			{ name: "Tailwind CSS", href: "https://tailwindcss.com", external: true },
-			{ name: "Drizzle ORM", href: "https://orm.drizzle.team", external: true }
+			{ name: "Tailwind CSS", href: "https://tailwindcss.com", external: true }
 		]
 	}
 </script>
@@ -177,7 +170,7 @@
 						<h4 class="mb-2 text-sm font-medium text-gray-900 dark:text-gray-100">
 							Development Commands
 						</h4>
-						<div class="grid grid-cols-1 gap-2 text-xs md:grid-cols-2 lg:grid-cols-4">
+						<div class="grid grid-cols-1 gap-2 text-xs md:grid-cols-2 lg:grid-cols-3">
 							<div class="flex flex-col space-y-1">
 								<code class="text-blue-600 dark:text-blue-400">npm run dev</code>
 								<span class="text-gray-600 dark:text-gray-400">Start development</span>
@@ -189,10 +182,6 @@
 							<div class="flex flex-col space-y-1">
 								<code class="text-blue-600 dark:text-blue-400">npm run storybook</code>
 								<span class="text-gray-600 dark:text-gray-400">View components</span>
-							</div>
-							<div class="flex flex-col space-y-1">
-								<code class="text-blue-600 dark:text-blue-400">npm run db:studio</code>
-								<span class="text-gray-600 dark:text-gray-400">Database GUI</span>
 							</div>
 						</div>
 					</div>
