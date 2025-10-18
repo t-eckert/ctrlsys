@@ -10,7 +10,7 @@ tasks:
   default:
     desc: "List all available tasks"
     cmds:
-      - task:logo
+      - task: logo
       - task --list-all
     silent: true
 
@@ -20,158 +20,85 @@ tasks:
       - cat ./logo
     silent: true
 
-  # Workspace-level tasks
-  build:all:
-    desc: "Build all components"
+  # Build tasks
+  build:
+    desc: "Build both binaries (server + cli)"
     cmds:
-      - echo "Building all components..."
-      - cargo build --workspace
+      - echo "Building server..."
+      - cargo build --bin server --features server
+      - echo "Building CLI..."
+      - cargo build --bin cli --features cli
 
   build:release:
-    desc: "Build all components (release)"
+    desc: "Build both binaries in release mode"
     cmds:
-      - echo "Building all components (release)..."
-      - cargo build --workspace --release
+      - echo "Building server (release)..."
+      - cargo build --bin server --features server --release
+      - echo "Building CLI (release)..."
+      - cargo build --bin cli --features cli --release
 
-  test:all:
-    desc: "Test all components"
+  build:lib:
+    desc: "Build the library only"
     cmds:
-      - echo "Testing all components..."
-      - cargo test --workspace
+      - cargo build --lib
 
-  fmt:all:
+  # Test tasks
+  test:
+    desc: "Run all tests"
+    cmds:
+      - cargo test --lib
+      - cargo test --bin server --features server
+      - cargo test --bin cli --features cli
+
+  # Code quality tasks
+  fmt:
     desc: "Format all code"
     cmds:
       - cargo fmt --all
 
-  clippy:all:
-    desc: "Lint all code"
+  clippy:
+    desc: "Lint all code with clippy"
     cmds:
-      - cargo clippy --workspace -- -D warnings
+      - cargo clippy --lib -- -D warnings
+      - cargo clippy --bin server --features server -- -D warnings
+      - cargo clippy --bin cli --features cli -- -D warnings
 
-  check:all:
+  check:
     desc: "Check all code (fmt + clippy + test)"
     cmds:
-      - task: fmt:all
-      - task: clippy:all
-      - task: test:all
+      - task: fmt
+      - task: clippy
+      - task: test
 
   # Development workflow
   dev:
-    desc: "Full development cycle"
+    desc: "Full development cycle (check + build)"
     cmds:
-      - task: check:all
-      - echo "All components ready for development"
-
-  # Container tasks
-  container:build:all:
-    desc: "Build all container images"
-    cmds:
-      - task: timer:container:build
-      - task: api:container:build
-
-  # Kubernetes cluster management
-  k8s:cluster:start:
-    desc: "Start local Kubernetes cluster"
-    cmds:
-      - task: timer:k8s:cluster:start
-
-  k8s:cluster:stop:
-    desc: "Stop local Kubernetes cluster"
-    cmds:
-      - task: timer:k8s:cluster:stop
-
-  k8s:cluster:status:
-    desc: "Check Kubernetes cluster status"
-    cmds:
-      - task: timer:k8s:cluster:status
-
-  # Kubernetes deployment tasks
-  k8s:apply:
-    desc: "Apply all Kubernetes resources"
-    cmds:
-      - task: timer:k8s:apply
-
-  k8s:delete:
-    desc: "Delete Kubernetes resources"
-    cmds:
-      - task: timer:k8s:delete
-
-  k8s:dev:
-    desc: "Full local Kubernetes development setup"
-    cmds:
-      - task: k8s:cluster:start
-      - task: timer:deploy:local
+      - task: check
+      - task: build
+      - echo "✓ All checks passed, binaries built"
 
   # Cleanup
-  clean:all:
+  clean:
     desc: "Clean all build artifacts"
     cmds:
-      - cargo clean --workspace
+      - cargo clean
       - rm -rf target/
 
-  # Protocol Buffer management with Buf
-  proto:lint:
-    desc: "Lint all protobuf files"
+  # Watch mode
+  watch:server:
+    desc: "Watch and rebuild server on changes"
     cmds:
-      - buf lint
+      - cargo watch -x "build --bin server --features server"
 
-  proto:breaking:
-    desc: "Check for breaking changes in protobuf files"
+  watch:cli:
+    desc: "Watch and rebuild CLI on changes"
     cmds:
-      - buf breaking --against '.git#branch=main'
-
-  proto:generate:
-    desc: "Generate code from protobuf files"
-    cmds:
-      - buf generate
-
-  proto:generate:go:
-    desc: "Generate Go code from protobuf files"
-    cmds:
-      - buf generate --template buf.gen.go.yaml
-
-  proto:generate:rust:
-    desc: "Generate Rust code from protobuf files"
-    cmds:
-      - buf generate --template buf.gen.rust.yaml
-
-  proto:build:
-    desc: "Build protobuf modules"
-    cmds:
-      - buf build
-
-  proto:check:
-    desc: "Check protobuf files (lint + build)"
-    cmds:
-      - task: proto:lint
-      - task: proto:build
-
-  # Utilities
-  watch:all:
-    desc: "Watch all components for changes"
-    cmds:
-      - cargo watch -x "build --workspace"
-
-  # Quick aliases
-  b:
-    desc: "Build all (alias)"
-    cmds:
-      - task: build:all
-
-  t:
-    desc: "Test all (alias)"
-    cmds:
-      - task: test:all
-
-  c:
-    desc: "Check all (alias)"
-    cmds:
-      - task: check:all
+      - cargo watch -x "build --bin cli --features cli"
 
   # Server tasks
   server:run:
-    desc: "Run the server (requires DATABASE_URL env var)"
+    desc: "Run the server (requires DATABASE_URL)"
     cmds:
       - cargo run --bin server --features server
 
@@ -180,9 +107,14 @@ tasks:
     cmds:
       - cargo build --bin server --features server
 
+  server:release:
+    desc: "Build server in release mode"
+    cmds:
+      - cargo build --bin server --features server --release
+
   # CLI tasks
   cli:run:
-    desc: "Run the CLI with args (use -- to pass arguments)"
+    desc: "Run the CLI (use CLI_ARGS='...' for arguments)"
     cmds:
       - cargo run --bin cli --features cli -- {{.CLI_ARGS}}
 
@@ -190,3 +122,34 @@ tasks:
     desc: "Build the CLI"
     cmds:
       - cargo build --bin cli --features cli
+
+  cli:release:
+    desc: "Build CLI in release mode"
+    cmds:
+      - cargo build --bin cli --features cli --release
+
+  # Quick aliases
+  b:
+    desc: "Build (alias)"
+    cmds:
+      - task: build
+
+  t:
+    desc: "Test (alias)"
+    cmds:
+      - task: test
+
+  c:
+    desc: "Check (alias)"
+    cmds:
+      - task: check
+
+  r:server:
+    desc: "Run server (alias)"
+    cmds:
+      - task: server:run
+
+  r:cli:
+    desc: "Run CLI (alias)"
+    cmds:
+      - task: cli:run
