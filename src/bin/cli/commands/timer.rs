@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use chrono::{DateTime, Utc};
 use ctrlsys::config::CliConfig;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -18,6 +19,9 @@ struct TimerResponse {
     duration_seconds: i32,
     status: String,
     remaining_seconds: Option<i32>,
+    created_at: DateTime<Utc>,
+    started_at: Option<DateTime<Utc>>,
+    expires_at: Option<DateTime<Utc>>,
 }
 
 pub async fn handle(command: TimerCommands, config: &CliConfig) -> Result<()> {
@@ -84,13 +88,63 @@ async fn list_timers(client: &ApiClient) -> Result<()> {
     println!("Timers:");
     println!();
     for timer in timers {
-        println!("  {} - {} ({})", timer.id, timer.name, timer.status);
-        if let Some(remaining) = timer.remaining_seconds {
-            println!("    Remaining: {} seconds", remaining);
+        print!("  {} - {} ({})", timer.id, timer.name, timer.status);
+
+        match timer.status.as_str() {
+            "running" => {
+                if let Some(remaining) = timer.remaining_seconds {
+                    println!(" - {} seconds remaining", remaining);
+                } else {
+                    println!();
+                }
+            }
+            "completed" => {
+                if let Some(expires_at) = timer.expires_at {
+                    let elapsed = Utc::now().signed_duration_since(expires_at);
+                    println!(" - finished {}", format_duration_ago(elapsed.num_seconds()));
+                } else {
+                    println!();
+                }
+            }
+            "cancelled" => {
+                println!();
+            }
+            _ => {
+                println!();
+            }
         }
     }
 
     Ok(())
+}
+
+fn format_duration_ago(seconds: i64) -> String {
+    let abs_seconds = seconds.abs();
+
+    if abs_seconds < 60 {
+        format!("{} seconds ago", abs_seconds)
+    } else if abs_seconds < 3600 {
+        let minutes = abs_seconds / 60;
+        if minutes == 1 {
+            "1 minute ago".to_string()
+        } else {
+            format!("{} minutes ago", minutes)
+        }
+    } else if abs_seconds < 86400 {
+        let hours = abs_seconds / 3600;
+        if hours == 1 {
+            "1 hour ago".to_string()
+        } else {
+            format!("{} hours ago", hours)
+        }
+    } else {
+        let days = abs_seconds / 86400;
+        if days == 1 {
+            "1 day ago".to_string()
+        } else {
+            format!("{} days ago", days)
+        }
+    }
 }
 
 async fn watch_timer(config: &CliConfig, timer_id: Uuid) -> Result<()> {

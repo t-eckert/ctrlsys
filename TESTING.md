@@ -72,9 +72,15 @@ Expected output:
 ```
 Timers:
 
-  <uuid> - Test Timer (running)
-    Remaining: 25 seconds
+  <uuid> - Test Timer (running) - 25 seconds remaining
+  <uuid> - Old Timer (completed) - finished 5 minutes ago
 ```
+
+**Notes:**
+- Running timers show remaining time
+- Completed timers show how long ago they finished
+- Timers completed more than 24 hours ago are automatically hidden
+- Timers are sorted by status (running, pending, completed, cancelled)
 
 ### 3. Watch Timer (TUI Mode)
 

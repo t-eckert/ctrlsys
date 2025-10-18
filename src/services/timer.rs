@@ -45,14 +45,28 @@ impl TimerService {
         Ok(timer)
     }
 
-    /// List all timers
+    /// List all timers (excludes completed timers older than 24 hours)
     pub async fn list(pool: &PgPool) -> Result<Vec<Timer>> {
+        let cutoff = Utc::now() - Duration::hours(24);
+
         let timers = sqlx::query_as::<_, Timer>(
             r#"
             SELECT * FROM timers
-            ORDER BY created_at DESC
+            WHERE
+                status != $1
+                OR (status = $1 AND created_at >= $2)
+            ORDER BY
+                CASE
+                    WHEN status = 'running' THEN 1
+                    WHEN status = 'pending' THEN 2
+                    WHEN status = 'completed' THEN 3
+                    WHEN status = 'cancelled' THEN 4
+                END,
+                created_at DESC
             "#,
         )
+        .bind(TimerStatus::Completed)
+        .bind(cutoff)
         .fetch_all(pool)
         .await?;
 

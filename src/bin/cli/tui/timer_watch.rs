@@ -17,7 +17,13 @@ use ratatui::{
 use serde::Deserialize;
 use std::io;
 use tokio::time::{timeout, Duration};
-use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::{
+        protocol::Message,
+        http::HeaderValue,
+    },
+};
 use uuid::Uuid;
 
 #[derive(Debug, Deserialize)]
@@ -61,14 +67,24 @@ async fn run_app(
     config: &CliConfig,
     timer_id: Uuid,
 ) -> Result<()> {
-    // Connect to WebSocket
+    // Connect to WebSocket with authentication
     let ws_url = format!(
         "{}/api/v1/timers/{}/ws",
         config.server_url.replace("http", "ws"),
         timer_id
     );
 
-    let (ws_stream, _) = connect_async(&ws_url)
+    // Create request with Authorization header
+    use tokio_tungstenite::tungstenite::client::IntoClientRequest;
+    let mut request = ws_url.into_client_request()?;
+
+    let auth_header = format!("Bearer {}", config.api_token);
+    request.headers_mut().insert(
+        "Authorization",
+        HeaderValue::from_str(&auth_header)?,
+    );
+
+    let (ws_stream, _) = connect_async(request)
         .await
         .context("Failed to connect to WebSocket")?;
 
