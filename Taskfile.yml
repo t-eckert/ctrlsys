@@ -5,20 +5,6 @@ version: '3'
 vars:
   PROJECT_NAME: ctrlsys
 
-includes:
-  timer:
-    taskfile: ./jobs/timer/Taskfile.yml
-    dir: ./jobs/timer
-  api:
-    taskfile: ./apps/api/Taskfile.yml
-    dir: ./apps/api
-  cli:
-    taskfile: ./cli/Taskfile.yml
-    dir: ./cli
-  lib:
-    taskfile: ./lib/Taskfile.yml
-    dir: ./lib
-
 tasks:
   # Default task - show available tasks
   default:
