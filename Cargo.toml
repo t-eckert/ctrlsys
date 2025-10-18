@@ -3,6 +3,16 @@ name = "ctrlsys"
 version = "0.1.0"
 edition = "2024"
 
+# CLI binary
+[[bin]]
+name = "cli"
+path = "src/bin/cli.rs"
+
+# Server binary
+[[bin]]
+name = "server"
+path = "src/bin/server.rs"
+
 [dependencies]
 rand = "0.9.0"
 slugify = "0.1.0"
