@@ -164,6 +164,11 @@ See `notebook/Ideas.md` for additional feature ideas.
 
 ## Development Patterns
 
+### Code Style
+- **No emoji or icons in code**: Do not use emoji, checkmarks, or other Unicode icons in code, comments, output messages, or documentation
+- Keep all text plain ASCII for maximum compatibility and clarity
+- Use words instead of symbols (e.g., "Success" not "✓", "Error" not "✗")
+
 ### Feature Flags
 The project uses Cargo features to conditionally compile code:
 - `server`: Enables Axum, SQLx, and server-specific dependencies

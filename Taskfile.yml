@@ -76,7 +76,7 @@ tasks:
     cmds:
       - task: check
       - task: build
-      - echo "✓ All checks passed, binaries built"
+      - echo "All checks passed, binaries built"
 
   # Cleanup
   clean:
@@ -127,6 +127,40 @@ tasks:
     desc: "Build CLI in release mode"
     cmds:
       - cargo build --bin cli --features cli --release
+
+  # Installation tasks
+  install:cli:
+    desc: "Install CLI to ~/.local/bin as 'ctrlsys' with 'cs' alias"
+    cmds:
+      - echo "Building CLI in release mode..."
+      - cargo build --bin cli --features cli --release
+      - echo "Installing to ~/.local/bin..."
+      - mkdir -p ~/.local/bin
+      - cp target/release/cli ~/.local/bin/ctrlsys
+      - ln -sf ~/.local/bin/ctrlsys ~/.local/bin/cs
+      - |
+        echo "Installed successfully!"
+        echo "  Binary: ~/.local/bin/ctrlsys"
+        echo "  Alias:  ~/.local/bin/cs"
+        echo ""
+        echo "Make sure ~/.local/bin is in your PATH"
+
+  uninstall:cli:
+    desc: "Uninstall CLI from ~/.local/bin"
+    cmds:
+      - rm -f ~/.local/bin/ctrlsys
+      - rm -f ~/.local/bin/cs
+      - echo "Uninstalled ctrlsys and cs"
+
+  install:
+    desc: "Install CLI (alias for install:cli)"
+    cmds:
+      - task: install:cli
+
+  uninstall:
+    desc: "Uninstall CLI (alias for uninstall:cli)"
+    cmds:
+      - task: uninstall:cli
 
   # Quick aliases
   b:

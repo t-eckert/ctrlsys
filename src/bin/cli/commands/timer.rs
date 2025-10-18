@@ -56,7 +56,7 @@ async fn create_timer(client: &ApiClient, name: String, duration: i32) -> Result
 
     let timer: TimerResponse = response.json().await?;
 
-    println!("✓ Timer created and started!");
+    println!("Timer created and started!");
     println!("  Name: {}", timer.name);
     println!("  ID: {}", timer.id);
     println!("  Duration: {} seconds", timer.duration_seconds);

@@ -54,7 +54,7 @@ cargo run --bin cli --features cli -- timer create "Test Timer" 30
 
 Expected output:
 ```
-✓ Timer created and started!
+Timer created and started!
   Name: Test Timer
   ID: <uuid>
   Duration: 30 seconds
@@ -145,10 +145,10 @@ You'll receive JSON timer updates every second.
 
 ## Success Criteria
 
-- ✅ Server starts and runs migrations
-- ✅ CLI can create timers
-- ✅ CLI can list timers
-- ✅ TUI watch mode shows live countdown
-- ✅ Timers auto-complete after duration expires
-- ✅ WebSocket provides real-time updates
-- ✅ Background task marks expired timers as completed
+- [x] Server starts and runs migrations
+- [x] CLI can create timers
+- [x] CLI can list timers
+- [x] TUI watch mode shows live countdown
+- [x] Timers auto-complete after duration expires
+- [x] WebSocket provides real-time updates
+- [x] Background task marks expired timers as completed
