@@ -1,12 +1,14 @@
 use axum::{
+    middleware,
+    routing::{delete, get, post},
     Router,
-    routing::get,
 };
 use std::sync::Arc;
-use tower_http::cors::{CorsLayer, Any};
+use tower_http::cors::{Any, CorsLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod auth;
+mod background;
 mod state;
 
 use ctrlsys::{config::ServerConfig, db};
@@ -37,13 +39,23 @@ async fn main() -> anyhow::Result<()> {
 
     // Create application state
     let state = Arc::new(AppState {
-        db: pool,
+        db: pool.clone(),
         config: config.clone(),
     });
+
+    // Start background tasks
+    tokio::spawn(background::timer_expiration_checker(pool.clone()));
+    tracing::info!("Background tasks started");
 
     // Build the application with routes
     let app = Router::new()
         .route("/health", get(health_check))
+        // Timer routes (protected)
+        .nest("/api/v1/timers", timer_routes())
+        .route_layer(middleware::from_fn_with_state(
+            state.clone(),
+            auth::auth_middleware,
+        ))
         .layer(CorsLayer::new().allow_origin(Any))
         .with_state(state);
 
@@ -61,3 +73,14 @@ async fn health_check() -> &'static str {
     "OK"
 }
 
+fn timer_routes() -> Router<Arc<AppState>> {
+    use ctrlsys::controllers::timer;
+    use ctrlsys::ws::timer::timer_ws_handler;
+
+    Router::new()
+        .route("/", post(timer::create_timer))
+        .route("/", get(timer::list_timers))
+        .route("/{id}", get(timer::get_timer))
+        .route("/{id}", delete(timer::cancel_timer))
+        .route("/{id}/ws", get(timer_ws_handler))
+}

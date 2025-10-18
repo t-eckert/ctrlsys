@@ -33,6 +33,7 @@ features = ["v4", "fast-rng", "macro-diagnostics", "serde"]
 # Server dependencies
 [dependencies.axum]
 version = "0.8"
+features = ["ws"]
 optional = true
 
 [dependencies.tokio]
@@ -86,8 +87,12 @@ optional = true
 version = "0.24"
 optional = true
 
+[dependencies.futures-util]
+version = "0.3"
+optional = true
+
 # Features to enable dependencies for each binary
 [features]
 default = []
 server = ["axum", "tokio", "sqlx", "tower", "tower-http", "tracing", "tracing-subscriber"]
-cli = ["clap", "ratatui", "crossterm", "reqwest", "tokio", "tokio-tungstenite"]
+cli = ["clap", "ratatui", "crossterm", "reqwest", "tokio", "tokio-tungstenite", "futures-util"]

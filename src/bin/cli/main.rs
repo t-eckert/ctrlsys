@@ -3,6 +3,7 @@ use ctrlsys::config::CliConfig;
 
 mod client;
 mod commands;
+mod tui;
 
 #[derive(Parser)]
 #[command(name = "cs")]

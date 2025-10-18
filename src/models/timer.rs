@@ -14,7 +14,7 @@ pub struct Timer {
     pub status: TimerStatus,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, sqlx::Type)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, sqlx::Type)]
 #[sqlx(type_name = "text")]
 pub enum TimerStatus {
     #[sqlx(rename = "pending")]

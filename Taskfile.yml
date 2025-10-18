@@ -168,3 +168,25 @@ tasks:
     desc: "Check all (alias)"
     cmds:
       - task: check:all
+
+  # Server tasks
+  server:run:
+    desc: "Run the server (requires DATABASE_URL env var)"
+    cmds:
+      - cargo run --bin server --features server
+
+  server:build:
+    desc: "Build the server"
+    cmds:
+      - cargo build --bin server --features server
+
+  # CLI tasks
+  cli:run:
+    desc: "Run the CLI with args (use -- to pass arguments)"
+    cmds:
+      - cargo run --bin cli --features cli -- {{.CLI_ARGS}}
+
+  cli:build:
+    desc: "Build the CLI"
+    cmds:
+      - cargo build --bin cli --features cli

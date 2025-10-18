@@ -1,0 +1,154 @@
+# Testing Guide - Sprint 2: Timers
+
+## Prerequisites
+
+1. **PostgreSQL Database**
+   - Install PostgreSQL locally or use Docker:
+   ```bash
+   docker run --name ctrlsys-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:15
+   ```
+
+2. **Create Database**
+   ```bash
+   createdb ctrlsys
+   # Or with Docker:
+   docker exec -it ctrlsys-postgres createdb -U postgres ctrlsys
+   ```
+
+3. **Set Environment Variables**
+   ```bash
+   export DATABASE_URL="postgresql://postgres:postgres@localhost/ctrlsys"
+   export CTRLSYS_API_TOKENS="test-token-123"
+   export CTRLSYS_PORT="3000"
+   ```
+
+## Running the Server
+
+```bash
+cargo run --bin server --features server
+```
+
+Expected output:
+```
+Database connection established
+Database migrations completed
+Background tasks started
+Server listening on 0.0.0.0:3000
+```
+
+## Configuring the CLI
+
+```bash
+cargo run --bin cli --features cli -- config set-server http://localhost:3000
+cargo run --bin cli --features cli -- config set-token test-token-123
+cargo run --bin cli --features cli -- config show
+```
+
+## Testing Timer Features
+
+### 1. Create a Timer
+
+```bash
+cargo run --bin cli --features cli -- timer create "Test Timer" 30
+```
+
+Expected output:
+```
+✓ Timer created and started!
+  Name: Test Timer
+  ID: <uuid>
+  Duration: 30 seconds
+
+Watch it with: cs timer watch <uuid>
+```
+
+### 2. List Timers
+
+```bash
+cargo run --bin cli --features cli -- timer list
+```
+
+Expected output:
+```
+Timers:
+
+  <uuid> - Test Timer (running)
+    Remaining: 25 seconds
+```
+
+### 3. Watch Timer (TUI Mode)
+
+```bash
+cargo run --bin cli --features cli -- timer watch <uuid>
+```
+
+This opens a full-screen TUI showing:
+- Timer name and status
+- Progress bar
+- Remaining time in MM:SS format
+- Live updates every second via WebSocket
+
+Press 'q' to quit.
+
+## API Endpoints
+
+You can also test the REST API directly:
+
+```bash
+# List timers
+curl http://localhost:3000/api/v1/timers \
+  -H "Authorization: Bearer test-token-123"
+
+# Create timer
+curl -X POST http://localhost:3000/api/v1/timers \
+  -H "Authorization: Bearer test-token-123" \
+  -H "Content-Type: application/json" \
+  -d '{"name":"API Timer","duration_seconds":60}'
+
+# Get specific timer
+curl http://localhost:3000/api/v1/timers/<uuid> \
+  -H "Authorization: Bearer test-token-123"
+
+# Cancel timer
+curl -X DELETE http://localhost:3000/api/v1/timers/<uuid> \
+  -H "Authorization: Bearer test-token-123"
+```
+
+## WebSocket Testing
+
+You can connect to the WebSocket endpoint using `wscat` or similar tools:
+
+```bash
+npm install -g wscat
+
+wscat -c ws://localhost:3000/api/v1/timers/<uuid>/ws \
+  -H "Authorization: Bearer test-token-123"
+```
+
+You'll receive JSON timer updates every second.
+
+## Troubleshooting
+
+### "Connection refused"
+- Make sure the server is running
+- Check that the port 3000 is available
+- Verify DATABASE_URL is set correctly
+
+### "Unauthorized" errors
+- Make sure you've set the API token in CLI config
+- Verify the token matches what's in CTRLSYS_API_TOKENS
+
+### Database errors
+- Run migrations manually: `sqlx migrate run`
+- Check database permissions
+- Verify database exists
+
+## Success Criteria
+
+- ✅ Server starts and runs migrations
+- ✅ CLI can create timers
+- ✅ CLI can list timers
+- ✅ TUI watch mode shows live countdown
+- ✅ Timers auto-complete after duration expires
+- ✅ WebSocket provides real-time updates
+- ✅ Background task marks expired timers as completed
