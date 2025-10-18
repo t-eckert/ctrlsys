@@ -39,6 +39,9 @@ pub async fn handle(command: TimerCommands, config: &CliConfig) -> Result<()> {
                 .context("Invalid timer ID format")?;
             watch_timer(config, timer_id).await?;
         }
+        TimerCommands::WatchAll => {
+            watch_all_timers(config).await?;
+        }
     }
 
     Ok(())
@@ -153,4 +156,12 @@ async fn watch_timer(config: &CliConfig, timer_id: Uuid) -> Result<()> {
 
     // Run the TUI
     timer_watch::run(config, timer_id).await
+}
+
+async fn watch_all_timers(config: &CliConfig) -> Result<()> {
+    // Import the TUI module
+    use super::super::tui::watch_all;
+
+    // Run the TUI
+    watch_all::run(config).await
 }

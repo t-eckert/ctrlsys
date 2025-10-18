@@ -96,6 +96,25 @@ This opens a full-screen TUI showing:
 
 Press 'q' to quit.
 
+### 4. Watch All Active Timers (TUI Mode)
+
+```bash
+cargo run --bin cli --features cli -- timer watch-all
+```
+
+This opens a full-screen TUI showing a table of all running timers:
+- Timer name
+- Total duration
+- Remaining time
+- Status
+
+Features:
+- Updates every second via REST API polling
+- Shows only running timers
+- Press 'q' to quit
+
+This is useful when you have multiple timers running and want to monitor them all at once.
+
 ## API Endpoints
 
 You can also test the REST API directly:

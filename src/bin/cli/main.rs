@@ -63,6 +63,8 @@ enum TimerCommands {
         /// Timer ID
         id: String,
     },
+    /// Watch all active timers (blocking, with TUI)
+    WatchAll,
 }
 
 #[derive(Subcommand)]
