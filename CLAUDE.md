@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is `ctrlsys`, a personal hobby project and development platform. It's a Rust project with two binaries (CLI and Server) and shared utility libraries for managing homelab infrastructure and development workflows.
+This is `ctrlsys`, a personal hobby project and development platform. It's a Rust Cargo workspace with three crates: a CLI binary, a server binary, and a shared library for managing homelab infrastructure and development workflows.
 
 **Architecture:**
-- **CLI** (`cs`): Command-line client using Clap for argument parsing, will use Ratatui for interactive TUI modes
+- **Workspace Structure**: Three separate crates (cli, server, lib) in a Cargo workspace
+- **CLI** (`cs`): Command-line client using Clap for argument parsing and Ratatui for interactive TUI modes
 - **Server**: Axum-based REST API + WebSocket server with PostgreSQL backend
-- **Shared libraries**: UUID, nomenclator, location, slug utilities
+- **Shared library**: Common code including models, services, controllers, utilities
 - **Authentication**: API token-based (Bearer tokens)
 - **Database**: PostgreSQL with SQLx and migrations
 
@@ -26,20 +27,20 @@ task dev               # Full development cycle (check:all)
 ```
 
 ### Building Specific Binaries
-**IMPORTANT:** Always use `--features` flag when building binaries directly!
 
 ```bash
-# CLI
-cargo build --bin cli --features cli
-cargo run --bin cli --features cli -- <args>
+# Build specific crates
+cargo build -p cli           # Build CLI binary
+cargo build -p server        # Build server binary
+cargo build -p lib           # Build shared library
 
-# Server
-cargo build --bin server --features server
-cargo run --bin server --features server
+# Run binaries
+cargo run -p cli -- <args>
+cargo run -p server
 
 # Examples:
-cargo run --bin cli --features cli -- config show
-cargo run --bin cli --features cli -- timer list
+cargo run -p cli -- config show
+cargo run -p cli -- timer list
 ```
 
 ### Code Quality
@@ -64,48 +65,55 @@ task logo              # Display the ctrlsys logo
 
 ## Project Structure
 
-This is a Rust project with two binaries and shared library modules:
+This is a Cargo workspace with three crates:
 
 ```
-ctrlsys/
-├── src/
-│   ├── bin/
-│   │   ├── cli/
-│   │   │   ├── main.rs       # CLI entry point
-│   │   │   ├── client.rs     # HTTP client for API calls
-│   │   │   └── commands/     # Command handlers (timer, location, task, etc.)
-│   │   └── server/
-│   │       ├── main.rs       # Server entry point
-│   │       ├── auth.rs       # Auth middleware
-│   │       └── state.rs      # Application state
-│   ├── config/           # Configuration (CLI & Server)
-│   ├── models/           # Database models (server-only)
-│   ├── controllers/      # API controllers (server-only)
-│   ├── services/         # Business logic (server-only)
-│   ├── db/               # Database utilities (server-only)
-│   ├── ws/               # WebSocket handlers (server-only)
-│   ├── lib.rs            # Library exports
-│   ├── uuid.rs           # UUID generation utilities
-│   ├── nomenclator.rs    # Random name generator (adjective-noun)
-│   ├── location.rs       # Location data structure
-│   └── slug.rs           # String slugification
+ctrlsys/                  # Workspace root
+├── Cargo.toml            # Workspace definition
 ├── migrations/           # SQL migrations (SQLx)
-├── Cargo.toml            # Package config with feature flags
 ├── Taskfile.yml          # Task automation
-└── notebook/
-    └── Ideas.md          # Feature ideas and CLI design
+├── notebook/
+│   └── Ideas.md          # Feature ideas and CLI design
+├── cli/                  # CLI binary crate
+│   ├── Cargo.toml
+│   └── src/
+│       ├── main.rs       # CLI entry point
+│       ├── client.rs     # HTTP client for API calls
+│       ├── commands/     # Command handlers (timer, location, weather, database, etc.)
+│       └── tui/          # Ratatui TUI components (timer_watch, watch_all, etc.)
+├── server/               # Server binary crate
+│   ├── Cargo.toml
+│   └── src/
+│       ├── main.rs       # Server entry point
+│       ├── auth.rs       # Auth middleware
+│       └── state.rs      # Application state
+└── lib/                  # Shared library crate
+    ├── Cargo.toml
+    └── src/
+        ├── lib.rs        # Library exports
+        ├── config/       # Configuration (CLI & Server)
+        ├── models/       # Database models (timer, location, database, etc.)
+        ├── controllers/  # API controllers (REST endpoints)
+        ├── services/     # Business logic (timer, location, weather, geocoding, database)
+        ├── db/           # Database utilities and migrations
+        ├── ws/           # WebSocket handlers (real-time updates)
+        ├── uuid.rs       # UUID generation utilities
+        ├── nomenclator.rs # Random name generator (adjective-noun)
+        ├── location.rs   # Location data structure with timezone
+        └── slug.rs       # String slugification
 ```
 
 ### Binaries
 
-**CLI** (`src/bin/cli/`): Command-line interface
+**CLI** (`cli/`): Command-line interface crate
 - Uses Clap with derive API for argument parsing
 - Verb-noun command model: `cs <resource> <action>`
 - HTTP client to communicate with server
 - Configuration stored in `~/.config/ctrlsys/config.toml`
-- Commands: timer, location, task, template, db, config
+- Commands: timer, location, weather, database, config
+- TUI modes: timer watch, watch-all, location world clock, weather dashboard
 
-**Server** (`src/bin/server/`): Backend API server
+**Server** (`server/`): Backend API server crate
 - Axum web framework with async/await
 - PostgreSQL database via SQLx
 - API token authentication (Bearer tokens)
@@ -114,48 +122,62 @@ ctrlsys/
 
 ## Core Libraries & Modules
 
+**Shared Library** (`lib/`): All shared code between CLI and server
+
 ### Shared Utilities
-- **uuid** (`src/uuid.rs`): UUID v4 generation
-- **nomenclator** (`src/nomenclator.rs`): Random adjective-noun names (2,500 combinations)
-- **location** (`src/location.rs`): Geographic location data structure
-- **slug** (`src/slug.rs`): String slugification
-- **config** (`src/config/`): Configuration management for CLI and server
+- **uuid** (`lib/src/uuid.rs`): UUID v4 generation
+- **nomenclator** (`lib/src/nomenclator.rs`): Random adjective-noun names (2,500 combinations)
+- **location** (`lib/src/location.rs`): Geographic location data structure with timezone support
+- **slug** (`lib/src/slug.rs`): String slugification
+- **config** (`lib/src/config/`): Configuration management for CLI and server
 
-### Server-Only Modules (compiled with `--features server`)
-- **models** (`src/models/`): Database models for timers, locations, tasks, templates, databases
-- **controllers** (`src/controllers/`): API route handlers
-- **services** (`src/services/`): Business logic layer
-- **db** (`src/db/`): Database connection pooling and migrations
-- **ws** (`src/ws/`): WebSocket handlers for real-time updates
+### Library Modules (used by server, some by CLI)
+- **models** (`lib/src/models/`): Database models for timers, locations, managed_databases
+- **controllers** (`lib/src/controllers/`): API route handlers (timer, location, weather, database)
+- **services** (`lib/src/services/`): Business logic layer (timer, location, weather, geocoding, database)
+- **db** (`lib/src/db/`): Database connection pooling and migrations
+- **ws** (`lib/src/ws/`): WebSocket handlers for real-time timer updates
 
-### CLI-Only Modules (compiled with `--features cli`)
-- **client** (`src/bin/cli/client.rs`): HTTP client wrapper
-- **commands** (`src/bin/cli/commands/`): Command implementations
+## Implemented Features
 
-## Planned Features
-
-### 1. Timers
+### 1. Timers (Sprint 2 - COMPLETED)
 - Create and manage timers from CLI
 - Blocking mode: Full-screen TUI with live countdown (Ratatui)
 - Non-blocking mode: Background timers with async updates
 - WebSocket subscriptions for real-time timer updates
+- Watch-all mode to monitor multiple running timers
+- Smart filtering (hide timers completed >24 hours ago)
 
-### 2. Time Zones
+### 2. Locations & Timezones (Sprint 3 - COMPLETED)
 - Save locations with timezone information
 - Query current time at any saved location
 - Display time across multiple locations simultaneously
+- Live world clock TUI showing all locations
+- Full timezone conversion support via chrono-tz
+- Automatic geocoding for city names using OpenWeatherMap API
+- Offline timezone lookup from coordinates using tzf-rs
 
-### 3. Postgres Database Management
+### 3. Weather (Sprint 3 Enhancement - COMPLETED)
+- Check weather at any saved location
+- Live weather dashboard TUI for all locations
+- Integration with OpenWeatherMap API
+- Display temperature, conditions, and wind speed
+
+### 4. Postgres Database Management (Sprint 4 - COMPLETED)
 - Create and manage databases on homelab Postgres server
-- Track metadata about managed databases
-- Safety features for destructive operations
+- Track metadata (owner, notes) about managed databases
+- Safety features for destructive operations (protected databases, confirmation prompts)
+- Automatic connection termination before database deletion
+- SQL injection protection via database name validation
 
-### 4. Project Scaffolding
+## Planned Features
+
+### 5. Project Scaffolding
 - Create and manage project templates
 - Template variables and substitution
 - Pre-built templates for common project types (Rust, SvelteKit, etc.)
 
-### 5. Task/TODO Management
+### 6. Task/TODO Management
 - Create and track tasks
 - Start timers on tasks to track time spent
 - Integrate with timer system for automatic time logging
@@ -169,11 +191,12 @@ See `notebook/Ideas.md` for additional feature ideas.
 - Keep all text plain ASCII for maximum compatibility and clarity
 - Use words instead of symbols (e.g., "Success" not "✓", "Error" not "✗")
 
-### Feature Flags
-The project uses Cargo features to conditionally compile code:
-- `server`: Enables Axum, SQLx, and server-specific dependencies
-- `cli`: Enables Clap, Ratatui, Reqwest, and CLI-specific dependencies
-- Modules are conditionally compiled: `#[cfg(feature = "server")]`
+### Workspace Structure
+The project uses a Cargo workspace with three crates:
+- **cli**: CLI binary with command handlers and TUI components
+- **server**: Server binary with routing and application state
+- **lib**: Shared library with models, services, controllers, and utilities
+- Benefits: No feature flags needed, cleaner LSP experience, better separation of concerns
 
 ### Database Migrations
 - SQLx compile-time checked queries
@@ -184,7 +207,8 @@ The project uses Cargo features to conditionally compile code:
 ### Configuration
 - **CLI**: TOML config at `~/.config/ctrlsys/config.toml`
 - **Server**: Environment variables (`DATABASE_URL`, `CTRLSYS_PORT`, `CTRLSYS_API_TOKENS`)
-- Config modules: `src/config/cli.rs` and `src/config/server.rs`
+- Config modules: `lib/src/config/cli.rs` and `lib/src/config/server.rs`
+- Config is shared via the lib crate
 
 ### Testing & Quality
 - **Always run `task check:all` before commits**
@@ -201,13 +225,17 @@ The project uses Cargo features to conditionally compile code:
 ## Important Notes
 
 - This is a personal hobby project for homelab and development workflow management
-- **Two binaries, one codebase**: Both CLI and Server share library code
-- **Feature-based compilation**: Always use `--features` flag when building binaries
+- **Cargo Workspace**: Three crates (cli, server, lib) in a workspace - no feature flags needed
+- **Shared Library**: All common code lives in the `lib` crate
 - **Sprint 1 Complete**: Core architecture, config system, auth middleware, basic CLI/server structure
+- **Sprint 2 Complete**: Timer feature with CRUD operations, WebSocket updates, and TUI watch modes
+- **Sprint 3 Complete**: Location/timezone feature with world clock TUI, weather integration, geocoding
+- **Sprint 4 Complete**: Postgres database management with safety features
 - **Database**: Requires PostgreSQL instance (configured via `DATABASE_URL`)
 - **Authentication**: Server uses Bearer token auth, CLI stores token in config file
 - **Pure Rust**: No Go, no protobuf, no Kubernetes (simplified from previous version)
 - **SQLx**: Uses compile-time checked queries and migrations
+- **OpenWeatherMap**: Weather and geocoding features require API key in config
 
 ### MCP Servers for Claude Code
 
@@ -215,11 +243,16 @@ For better Rust development experience, install these MCP servers:
 1. **Rust Docs MCP**: Fetches documentation from docs.rs
 2. **CrateDocs**: Quick crate documentation lookup
 
-### Next Steps (Sprint 2)
+### Completed Sprints
 
-Implement the first feature: **Timers**
-1. Create timer service with CRUD operations
-2. Add timer controller with REST endpoints
-3. Implement WebSocket handler for live updates
-4. Add CLI commands for timer management
-5. Build Ratatui TUI for blocking timer watch mode
+**Sprint 1**: Core architecture, config system, auth middleware, basic CLI/server structure
+**Sprint 2**: Timers - Full CRUD, WebSocket updates, TUI watch modes
+**Sprint 3**: Locations & Timezones - World clocks, timezone conversions, live TUI, weather, geocoding
+**Sprint 4**: Database Management - Create/manage Postgres databases with safety features
+**Infrastructure**: Restructured to Cargo workspace (cli, server, lib) for better LSP support
+
+### Next Sprint Options
+
+Choose one of these features to implement next:
+1. **Project Scaffolding** - Create and manage project templates with variable substitution
+2. **Task/TODO Management** - Create and track tasks with timer integration
