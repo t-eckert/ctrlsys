@@ -24,6 +24,7 @@ pub struct ServerConfig {
     pub port: u16,
     pub database_url: String,
     pub api_tokens: Vec<String>,
+    pub weather_api_key: Option<String>,
 }
 
 impl Default for ServerConfig {
@@ -32,6 +33,7 @@ impl Default for ServerConfig {
             port: 3000,
             database_url: String::new(),
             api_tokens: vec![],
+            weather_api_key: None,
         }
     }
 }

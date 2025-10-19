@@ -1,0 +1,35 @@
+[package]
+name = "lib"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lib"
+path = "src/lib.rs"
+
+[dependencies]
+# Shared core dependencies
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+chrono-tz = "0.10"
+tzf-rs = "0.4"
+rand = "0.9.0"
+slugify = "0.1.0"
+urlencoding = "2.1"
+toml = "0.8"
+dirs = "6.0"
+
+uuid = { version = "1.5.0", features = ["v4", "fast-rng", "macro-diagnostics", "serde"] }
+
+# Server/API dependencies (for controllers, services, db, ws)
+axum = { version = "0.8", features = ["ws"] }
+tokio = { version = "1.42", features = ["full"] }
+sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "chrono", "uuid", "migrate"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors", "trace", "fs"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+reqwest = { version = "0.12", features = ["json"] }

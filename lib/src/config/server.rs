@@ -22,10 +22,13 @@ impl ServerConfig {
             .filter(|s| !s.is_empty())
             .collect();
 
+        let weather_api_key = env::var("OPENWEATHER_API_KEY").ok();
+
         Ok(Self {
             port,
             database_url,
             api_tokens,
+            weather_api_key,
         })
     }
 }

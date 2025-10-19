@@ -11,7 +11,7 @@ pub async fn create_pool(database_url: &str) -> Result<PgPool> {
 }
 
 pub async fn run_migrations(pool: &PgPool) -> Result<()> {
-    sqlx::migrate!("./migrations")
+    sqlx::migrate!("../migrations")
         .run(pool)
         .await?;
 

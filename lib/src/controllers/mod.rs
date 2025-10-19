@@ -1,7 +1,9 @@
-// Database models will be defined here
+// API controllers
 
 pub mod timer;
 pub mod location;
 pub mod task;
 pub mod template;
 pub mod database;
+pub mod weather;
+pub mod geocoding;
