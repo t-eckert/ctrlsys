@@ -2,7 +2,7 @@ use sqlx::PgPool;
 use std::time::Duration;
 use tokio::time;
 
-use ctrlsys::services::timer::TimerService;
+use lib::services::timer::TimerService;
 
 /// Background task that checks for expired timers every second
 pub async fn timer_expiration_checker(pool: PgPool) {
