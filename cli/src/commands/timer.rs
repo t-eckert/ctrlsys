@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use chrono::{DateTime, Utc};
-use ctrlsys::config::CliConfig;
+use lib::config::CliConfig;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 

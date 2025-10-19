@@ -1,0 +1,28 @@
+[package]
+name = "cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "cli"
+path = "src/main.rs"
+
+[dependencies]
+lib = { path = "../lib" }
+
+# CLI-specific dependencies
+clap = { version = "4.5", features = ["derive"] }
+ratatui = "0.29"
+crossterm = "0.28"
+reqwest = { version = "0.12", features = ["json"] }
+tokio = { version = "1.42", features = ["full"] }
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
+
+# Shared (re-exported from lib or needed directly)
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.5.0", features = ["v4", "serde"] }
+urlencoding = "2.1"

@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use ctrlsys::config::CliConfig;
+use lib::config::CliConfig;
 
 mod client;
 mod commands;
@@ -24,6 +24,11 @@ enum Commands {
     Location {
         #[command(subcommand)]
         command: LocationCommands,
+    },
+    /// Weather information
+    Weather {
+        #[command(subcommand)]
+        command: WeatherCommands,
     },
     /// Task management
     Task {
@@ -69,17 +74,17 @@ enum TimerCommands {
 
 #[derive(Subcommand)]
 enum LocationCommands {
-    /// Add a new location
+    /// Add a new location (auto-geocodes if tz not provided)
     Add {
         /// Location name
         name: String,
-        /// Timezone (e.g., America/New_York)
+        /// Timezone (e.g., America/New_York) - auto-detected if not provided
         #[arg(short, long)]
-        tz: String,
-        /// Latitude
+        tz: Option<String>,
+        /// Latitude - auto-detected if not provided
         #[arg(long)]
         lat: Option<f32>,
-        /// Longitude
+        /// Longitude - auto-detected if not provided
         #[arg(long)]
         lon: Option<f32>,
     },
@@ -90,6 +95,19 @@ enum LocationCommands {
         /// Location name (optional, shows all if not specified)
         name: Option<String>,
     },
+    /// Watch all locations with live clocks (TUI)
+    WatchAll,
+}
+
+#[derive(Subcommand)]
+enum WeatherCommands {
+    /// Get weather for a location
+    Get {
+        /// Location name (optional, shows all if not specified)
+        name: Option<String>,
+    },
+    /// Watch weather for all locations (TUI)
+    WatchAll,
 }
 
 #[derive(Subcommand)]
@@ -177,6 +195,7 @@ async fn main() -> anyhow::Result<()> {
         Commands::Config { command } => commands::config::handle(command, &mut config).await?,
         Commands::Timer { command } => commands::timer::handle(command, &config).await?,
         Commands::Location { command } => commands::location::handle(command, &config).await?,
+        Commands::Weather { command } => commands::weather::handle(command, &config).await?,
         Commands::Task { command } => commands::task::handle(command, &config).await?,
         Commands::Template { command } => commands::template::handle(command, &config).await?,
         Commands::Db { command } => commands::database::handle(command, &config).await?,

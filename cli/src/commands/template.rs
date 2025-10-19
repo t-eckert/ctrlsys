@@ -1,5 +1,5 @@
 use anyhow::Result;
-use ctrlsys::config::CliConfig;
+use lib::config::CliConfig;
 
 use crate::TemplateCommands;
 
